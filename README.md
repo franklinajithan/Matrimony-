@@ -35,7 +35,6 @@ A feature-rich, responsive Matrimony platform designed to connect users seamless
 ## Installation
 
 ### Prerequisites:
-
 - **Node.js** (v16 or higher)
 - **npm** or **yarn**
 
