@@ -14,9 +14,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {/* Conditionally render Navbar */}
       {!hideNavbarPaths.includes(location.pathname) && (
         <header className="bg-white shadow-md">
-          <div className="container  px-4 lg:px-8">
+          {/* <div className="container  px-4 lg:px-8"> */}
             <Navbar />
-          </div>
+          {/* </div> */}
         </header>
       )}
 
