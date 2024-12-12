@@ -27,9 +27,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
       {/* Footer */}
       <footer className="bg-gray-800 text-gray-200">
-        <div className="container px-4 lg:px-8">
+       
           <Footer />
-        </div>
+       
       </footer>
     </div>
   );
