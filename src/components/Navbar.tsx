@@ -38,10 +38,12 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="bg-purple-700 text-white py-4 px-6 flex justify-between items-center shadow-md">
+    <header className="bg-gradient-to-r from-purple-400 to-violet-800 text-white py-4 px-6 flex justify-between items-center shadow-md">
       {/* Logo Section */}
       <div className="text-3xl font-bold text-white ">
-        <Link to="/" className="text-white ">Matrimony</Link>
+        <Link to="/" className="text-white ">
+          Matrimony
+        </Link>
       </div>
 
       {/* Search Bar */}
@@ -51,70 +53,67 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Action Icons */}
-      <div className="flex items-center space-x-4">
-        {/* Message Icon */}
-        <div className="relative">
-          <Link to="/messages">
-            <FaEnvelope className="text-white hover:text-gray-300" size={20} />
-            <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">5</span>
-          </Link>
-        </div>
-
-        {/* Notification Icon */}
-        <div className="relative">
-          <Link to="/notifications">
-            <FaBell className="text-white hover:text-gray-300" size={20} />
-            <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
-          </Link>
-        </div>
-
-        {/* Payment Icon */}
-        <Link to="/payments">
-          <FaCreditCard className="text-white hover:text-gray-300" size={20} />
+      <div className="flex items-center space-x-6 ">
+        {/* Payment Options */}
+        <Link to="/payments" className="flex flex-col items-center text-white hover:text-gray-200 transition">
+          <span className="text-lg font-semibold">Price</span>
         </Link>
+
+        <Link to="/payments" className="flex flex-col items-center text-white hover:text-gray-200 transition">
+          <span className="text-lg font-semibold">Find Your Match</span>
+        </Link>
+
+        {/* Messages Icon */}
+        <div className="relative">
+          <Link to="/messages" className="flex items-center">
+            <FaEnvelope className="text-white hover:text-gray-300 transition" size={22} />
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">5</span>
+          </Link>
+        </div>
+
+        {/* Notifications Icon */}
+        <div className="relative">
+          <Link to="/notifications" className="flex items-center">
+            <FaBell className="text-white hover:text-gray-300 transition" size={22} />
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">3</span>
+          </Link>
+        </div>
 
         {/* User Profile Dropdown */}
         <div className="relative">
-          {/* Trigger Button */}
-          <div className="flex items-center space-x-2" onClick={() => setIsModalOpen(!isModalOpen)}>
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setIsModalOpen(!isModalOpen)}>
             {user?.photoURL ? (
-              <img src={user.photoURL} alt={user.displayName || "User"} className="w-8 h-8 rounded-full border-2 border-white" />
+              <img src={user.photoURL} alt={user.displayName || "User"} className="w-10 h-10 rounded-full border-2 border-white" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
                 <span className="text-gray-600 font-bold">{user?.displayName?.charAt(0) || "U"}</span>
               </div>
             )}
-            <span className="text-lg text-white">{user?.displayName || "Account"}</span>
+            <span className="text-white text-lg font-medium">{user?.displayName || "Account"}</span>
           </div>
 
-          {/* Modal Content */}
           {isModalOpen && (
-            <div className="absolute right-0 top-full mt-2 bg-white text-gray-700 shadow-lg rounded-md w-48 z-50">
-              <div className="px-3 py-2">
+            <div className="absolute right-0 mt-2 bg-white text-gray-700 shadow-lg rounded-lg w-48 z-50 overflow-hidden">
+              <div className="px-4 py-2 bg-gray-100">
                 <h6 className="font-bold">{user?.displayName || "User"}</h6>
                 <p className="text-sm">{user?.email}</p>
               </div>
               <div className="border-t">
-                <Link to="/profile" className="block px-3 py-2 hover:bg-gray-100">
+                <Link to="/profile" className="block px-4 py-2 hover:bg-gray-200 transition">
                   My Profile
                 </Link>
-                <Link to="/settings" className="block px-3 py-2 hover:bg-gray-100">
+                <Link to="/settings" className="block px-4 py-2 hover:bg-gray-200 transition">
                   Settings
                 </Link>
               </div>
               <div className="border-t">
-                <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-100">
+                <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-200 transition">
                   Logout
                 </button>
               </div>
             </div>
           )}
         </div>
-
-        {/* Hamburger Menu for Mobile */}
-        {/* <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-        </button> */}
       </div>
 
       {/* Mobile Menu */}
