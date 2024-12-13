@@ -7,7 +7,6 @@ import { Loader2 } from "lucide-react";
 import signIn from "../utils/auth";
 import InputField from "../components/elements/InputField";
 
-
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -32,8 +31,9 @@ const LoginPage: React.FC = () => {
     try {
       const user = await signIn(data.email, data.password);
       console.log("User signed in:", user);
-      navigate("/dashboard"); 
+      navigate("/dashboard");
     } catch (error: any) {
+      debugger;
       form.setError("password", { type: "manual", message: "Invalid email or password." });
     } finally {
       setIsLoading(false);
@@ -41,34 +41,41 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-600 to-violet-600">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Welcome to Matrimony !</h2>
-      
- 
-        <InputField control={form.control} name="email" label="Email" type="email" placeholder="Enter your email" />
- 
-        <InputField control={form.control} name="password" label="Password" type="password" placeholder="Enter your password" />
-     
-        <button type="submit" disabled={isLoading} className="btn-cyan">
+    <main className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-600 to-violet-600">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg" aria-labelledby="login-form-title">
+        <h1 id="login-form-title" className="text-lg font-semibold text-gray-800 mb-2">
+          Welcome to Matrimony!
+        </h1>
+
+        <InputField control={form.control} name="email" label="Email" type="email" placeholder="Enter your email" aria-label="Email" aria-required="true" />
+
+        <InputField control={form.control} name="password" label="Password" type="password" placeholder="Enter your password" aria-label="Password" aria-required="true" />
+
+        <button type="submit" disabled={isLoading} className="btn-cyan" aria-busy={isLoading} aria-live="polite">
           {isLoading ? (
             <span className="flex items-center space-x-2">
               <Loader2 size={20} className="animate-spin" />
-              <span>Loading...</span>
+              <span>Logging in...</span>
             </span>
           ) : (
             "Login"
           )}
         </button>
 
+        {/* {form.formState.errors.password && (
+          <div className="text-red-600 mt-2" role="alert" aria-live="assertive">
+            {form.formState.errors.password.message}
+          </div>
+        )} */}
+
         <p className="text-sm text-gray-500 text-center mt-4">
           Don't have an account?{" "}
-          <a href="/signup" className="text-indigo-600 hover:underline">
+          <a href="/signup" className="text-indigo-600 hover:underline" aria-label="Sign up for an account">
             Sign Up
           </a>
         </p>
       </form>
-    </div>
+    </main>
   );
 };
 
