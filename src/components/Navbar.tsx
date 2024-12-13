@@ -29,11 +29,15 @@ const Navbar: React.FC = () => {
   // Handle Logout
   const handleLogout = async () => {
     try {
-      await signOut(auth);
-      setIsUserLoggedIn(false);
+      // Sign out the user using Firebase
+      // await signOut(auth);
+      localStorage.removeItem("user");
+
       navigate("/login");
+
+      console.log("User logged out successfully");
     } catch (error) {
-      console.error("Error logging out:", error);
+      console.error("Error during logout:", error);
     }
   };
 
@@ -59,7 +63,7 @@ const Navbar: React.FC = () => {
           <span className="text-lg font-semibold">Price</span>
         </Link>
 
-        <Link to="/payments" className="flex flex-col items-center text-white hover:text-gray-200 transition">
+        <Link to="/userList" className="flex flex-col items-center text-white hover:text-gray-200 transition">
           <span className="text-lg font-semibold">Find Your Match</span>
         </Link>
 

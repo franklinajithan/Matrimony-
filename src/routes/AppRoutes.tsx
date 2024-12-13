@@ -1,12 +1,14 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import LandingPage from '../pages/LandingPage';
-import LoginPage from '../pages/LoginPage';
-import SignupPage from '../pages/SignupPage';
-import Dashboard from '../pages/Dashboard';
-import ProfileDetails from '../pages/ProfileDetails';
-import NotFound from '../pages/NotFound';
-import PrivateRoute from './PrivateRoute';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import LandingPage from "../pages/LandingPage";
+import LoginPage from "../pages/LoginPage";
+import SignupPage from "../pages/SignupPage";
+import Dashboard from "../pages/Dashboard";
+import ProfileDetails from "../pages/ProfileDetails";
+import NotFound from "../pages/NotFound";
+
+import UserList from "../pages/UserList";
+import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -20,17 +22,25 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/dashboard"
         element={
-          <PrivateRoute>
+          <ProtectedRoute>
             <Dashboard />
-          </PrivateRoute>
+          </ProtectedRoute>
         }
       />
       <Route
         path="/profile"
         element={
-          <PrivateRoute>
+          <ProtectedRoute>
             <ProfileDetails />
-          </PrivateRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/userList"
+        element={
+          <ProtectedRoute>
+            <UserList />
+          </ProtectedRoute>
         }
       />
 

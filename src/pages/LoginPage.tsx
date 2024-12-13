@@ -33,6 +33,8 @@ const LoginPage: React.FC = () => {
     try {
       const user = await signIn(data.email, data.password);
       console.log("User signed in:", user);
+      // Store user data in local storage
+      localStorage.setItem("user", JSON.stringify(user));
       navigate("/dashboard");
     } catch (error: any) {
       setGeneralError("Invalid email or password. Please try again.");

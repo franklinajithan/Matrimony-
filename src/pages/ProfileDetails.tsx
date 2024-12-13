@@ -5,46 +5,50 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import InputField from "../components/elements/InputField";
 import { Loader2 } from "lucide-react";
 import SelectField from "../components/elements/SelectField";
-
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../services/firebase";
 const profileSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
-  gender: z.enum(["Male", "Female", "Other"], { required_error: "Gender is required" }),
+  //gender: z.enum(["Male", "Female", "Other"], { required_error: "Gender is required" }),
   dateOfBirth: z.string().nonempty("Date of birth is required"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  religion: z.string().nonempty("Religion is required"),
-  caste: z.string().optional(),
-  subCaste: z.string().optional(),
-  maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"], { required_error: "Marital status is required" }),
-  education: z.string().nonempty("Education is required"),
-  occupation: z.string().nonempty("Occupation is required"),
-  income: z.string().optional(),
-  address: z.string().optional(),
-  citizenship: z.string().nonempty("Citizenship is required"),
-  country: z.string().nonempty("Country is required"),
-  state: z.string().nonempty("State is required"),
-  city: z.string().nonempty("City is required"),
-  height: z.string().nonempty("Height is required"),
-  weight: z.string().optional(),
-  bloodGroup: z.string().optional(),
-  complexion: z.enum(["Fair", "Wheatish", "Dark"], { required_error: "Complexion is required" }),
-  physicalStatus: z.enum(["Normal", "Physically Challenged"], { required_error: "Physical status is required" }),
-  familyType: z.enum(["Nuclear", "Joint", "Extended"], { required_error: "Family type is required" }),
-  familyStatus: z.enum(["Middle Class", "Upper Middle Class", "Rich"], { required_error: "Family status is required" }),
-  fatherOccupation: z.string().optional(),
-  motherOccupation: z.string().optional(),
-  siblings: z.string().optional(),
-  foodPreference: z.enum(["Vegetarian", "Non-Vegetarian", "Eggetarian", "Vegan"], { required_error: "Food preference is required" }),
-  drinking: z.enum(["Yes", "No", "Occasionally"], { required_error: "Drinking preference is required" }),
-  smoking: z.enum(["Yes", "No", "Occasionally"], { required_error: "Smoking preference is required" }),
-  expectations: z.string().optional(),
-  horoscope: z.string().optional(),
-  manglik: z.enum(["Yes", "No", "Doesn't Matter"], { required_error: "Manglik status is required" }),
-  star: z.string().optional(),
-  rashi: z.string().optional(),
-  gothra: z.string().optional(),
-  motherTongue: z.string().nonempty("Mother tongue is required"),
-  hobbies: z.string().optional(),
+  // phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  // religion: z.string().nonempty("Religion is required"),
+  // caste: z.string().optional(),
+  // subCaste: z.string().optional(),
+  // // maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"], { required_error: "Marital status is required" }),
+  // maritalStatus: z.string().nonempty("Marital status is required"),
+  // education: z.string().nonempty("Education is required"),
+  // occupation: z.string().nonempty("Occupation is required"),
+  // income: z.string().optional(),
+  // address: z.string().optional(),
+  // citizenship: z.string().nonempty("Citizenship is required"),
+  // country: z.string().nonempty("Country is required"),
+  // state: z.string().nonempty("State is required"),
+  // city: z.string().nonempty("City is required"),
+  // height: z.string().nonempty("Height is required"),
+  // weight: z.string().optional(),
+  // bloodGroup: z.string().optional(),
+  // //complexion: z.enum(["Fair", "Wheatish", "Dark"], { required_error: "Complexion is required" }),
+  // complexion: z.string().optional(),
+  // //physicalStatus: z.enum(["Normal", "Physically Challenged"], { required_error: "Physical status is required" }),
+  // physicalStatus: z.string().optional(),
+  // //familyType: z.enum(["Nuclear", "Joint", "Extended"], { required_error: "Family type is required" }),
+  // // familyStatus: z.enum(["Middle Class", "Upper Middle Class", "Rich"], { required_error: "Family status is required" }),
+  // fatherOccupation: z.string().optional(),
+  // motherOccupation: z.string().optional(),
+  // siblings: z.string().optional(),
+  // //foodPreference: z.enum(["Vegetarian", "Non-Vegetarian", "Eggetarian", "Vegan"], { required_error: "Food preference is required" }),
+  // // drinking: z.enum(["Yes", "No", "Occasionally"], { required_error: "Drinking preference is required" }),
+  // // smoking: z.enum(["Yes", "No", "Occasionally"], { required_error: "Smoking preference is required" }),
+  // expectations: z.string().optional(),
+  // horoscope: z.string().optional(),
+  // // manglik: z.enum(["Yes", "No", "Doesn't Matter"], { required_error: "Manglik status is required" }),
+  // star: z.string().optional(),
+  // rashi: z.string().optional(),
+  // gothra: z.string().optional(),
+  // motherTongue: z.string().nonempty("Mother tongue is required"),
+  // hobbies: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -52,15 +56,15 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 const ProfileDetails: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const options = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
-    { value: 'other', label: 'Other' },
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+    { value: "other", label: "Other" },
   ];
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       fullName: "",
-      gender: "",
+      //gender: "",
       dateOfBirth: "",
       email: "",
       phone: "",
@@ -103,10 +107,16 @@ const ProfileDetails: React.FC = () => {
   const onSubmit = async (data: ProfileFormValues) => {
     setIsLoading(true);
     try {
+      debugger;
+      // Create a new document in the "profiles" collection with a unique ID
+      const profileRef = doc(db, "profiles", data.email); // Use email as the document ID
+      await setDoc(profileRef, data);
+      debugger;
       console.log("Profile Data Submitted:", data);
       alert("Profile details saved successfully!");
     } catch (error) {
       console.error("Error saving profile details:", error);
+      alert("Failed to save profile details. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -169,11 +179,7 @@ const ProfileDetails: React.FC = () => {
 
         {/* Add similar fieldsets for Family Details, Preferences, Horoscope Details, and Additional Information */}
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-purple-700 text-white py-2 px-4 rounded-md hover:bg-purple-800"
-        >
+        <button type="submit" disabled={isLoading} className="w-full bg-purple-700 text-white py-2 px-4 rounded-md hover:bg-purple-800">
           {isLoading ? (
             <span className="flex items-center justify-center space-x-2">
               <Loader2 size={20} className="animate-spin" />
