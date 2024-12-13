@@ -26,7 +26,7 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
-        path="/profile/:id"
+        path="/profile"
         element={
           <PrivateRoute>
             <ProfileDetails />

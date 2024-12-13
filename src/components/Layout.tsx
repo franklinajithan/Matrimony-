@@ -7,7 +7,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   // List of paths where the Navbar should not appear
-  const hideNavbarPaths = ["/login", "/signup"];
+  const hideNavbarPaths = ["/login", "/signup","/"];
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -27,9 +27,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
       {/* Footer */}
       <footer className="bg-gray-800 text-gray-200">
-        <div className="container px-4 lg:px-8">
+       
           <Footer />
-        </div>
+       
       </footer>
     </div>
   );
