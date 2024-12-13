@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InputField from "../components/elements/InputField";
 import { Loader2 } from "lucide-react";
+import SelectField from "../components/elements/SelectField";
 
 const profileSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
@@ -50,7 +51,11 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const ProfileDetails: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
-
+  const options = [
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+    { value: 'other', label: 'Other' },
+  ];
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -117,7 +122,8 @@ const ProfileDetails: React.FC = () => {
           <legend className="text-lg font-bold text-purple-700">Personal Information</legend>
           <div className="grid grid-cols-4 md:grid-cols-4 gap-4">
             <InputField control={form.control} name="fullName" label="Full Name" type="text" placeholder="Enter your full name" />
-            <InputField control={form.control} name="gender" label="Gender" type="text" placeholder="Enter your gender" />
+            {/* <InputField control={form.control} name="gender" label="Gender" type="text" placeholder="Enter your gender" /> */}
+            <SelectField control={form.control} name="gender" label="Gender" options={options} errorMessage="This field is required." />
             <InputField control={form.control} name="dateOfBirth" label="Date of Birth" type="date" placeholder="Select your date of birth" />
             <InputField control={form.control} name="email" label="Email" type="email" placeholder="Enter your email" />
             <InputField control={form.control} name="phone" label="Phone Number" type="tel" placeholder="Enter your phone number" />

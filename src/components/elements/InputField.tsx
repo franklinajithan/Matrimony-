@@ -1,25 +1,40 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 
-const InputField = ({ control, name, label, type, placeholder }: any) => {
+interface InputFieldProps {
+  control: any; // Use the appropriate type from react-hook-form if possible, like Control<FieldValues>.
+  name: string;
+  label: string;
+  type: string;
+  placeholder: string;
+}
+
+const InputField: React.FC<InputFieldProps> = ({ control, name, label, type, placeholder }) => {
   return (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      {/* Link the label to the input using htmlFor and id */}
+      <label className="block text-sm font-medium text-gray-700" htmlFor={name}>
+        {label}
+      </label>
       <Controller
         name={name}
         control={control}
         render={({ field, fieldState }) => (
           <>
+            {/* Properly associate input and label using id */}
             <input
+              id={name}
               {...field}
               type={type}
               placeholder={placeholder}
-              className={`mt-1 block w-full border ${
-                fieldState.error ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2`}
+              className={`block w-full border ${fieldState.error ? "border-red-500" : "border-gray-300"} rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2`}
+              aria-invalid={fieldState.error ? "true" : "false"}
+              aria-describedby={fieldState.error ? `${name}-error` : undefined}
             />
             {fieldState.error && (
-              <p className="text-red-500 text-sm mt-1">{fieldState.error.message}</p>
+              <p id={`${name}-error`} className="text-red-500 text-sm mt-1" role="alert">
+                {fieldState.error.message}
+              </p>
             )}
           </>
         )}
