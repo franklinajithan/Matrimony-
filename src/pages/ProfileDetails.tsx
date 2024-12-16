@@ -60,6 +60,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 const ProfileDetails: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState<Record<string, any> | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null); // State for previewing images
 
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const form = useForm<ProfileFormValues>({
@@ -123,13 +124,13 @@ const ProfileDetails: React.FC = () => {
     try {
       const profileRef = doc(db, "profiles", email);
       const profileSnap = await getDoc(profileRef);
-  
+
       if (profileSnap.exists()) {
         const profileData = profileSnap.data() as ProfileFormValues;
-  
+
         // Update form with fetched data
         form.reset(profileData);
-  
+        debugger;
         // Set profile data for rendering
         setProfileData((prev) => ({
           ...prev,
@@ -143,7 +144,6 @@ const ProfileDetails: React.FC = () => {
       console.error("Error fetching profile data:", error);
     }
   };
-  
 
   const uploadImage = async (file: File) => {
     try {
@@ -158,10 +158,11 @@ const ProfileDetails: React.FC = () => {
   };
 
   const onSubmit = async (data: ProfileFormValues) => {
+    debugger;
     setIsLoading(true);
     try {
       if (!userEmail) throw new Error("User not authenticated");
-  
+
       // Step 1: Upload profile picture if it's a file
       let profilePictureURL = data.profilePicture;
       if (data.profilePicture instanceof File) {
@@ -169,22 +170,22 @@ const ProfileDetails: React.FC = () => {
         await uploadBytes(profilePictureRef, data.profilePicture);
         profilePictureURL = await getDownloadURL(profilePictureRef);
       }
-  
+
       // Step 2: Upload additional images
       const additionalFiles = data.additionalImages || [];
-      const additionalImageURLs = await uploadAdditionalImages(additionalFiles as File[]);
-  debugger;
+      //const additionalImageURLs = await uploadAdditionalImages(additionalFiles as File[]);
+      debugger;
       // Step 3: Prepare the final profile data
       const profileData = {
         ...data,
         profilePicture: profilePictureURL,
-        additionalImages: additionalImageURLs, // Ensure these URLs are stored properly
+        additionalImages: additionalFiles, // Ensure these URLs are stored properly
       };
-  
+      debugger;
       // Step 4: Save the profile data to Firestore
       const profileRef = doc(db, "profiles", userEmail);
       await setDoc(profileRef, profileData);
-  
+
       alert("Profile details saved successfully!");
     } catch (error) {
       console.error("Error saving profile details:", error);
@@ -193,8 +194,6 @@ const ProfileDetails: React.FC = () => {
       setIsLoading(false);
     }
   };
-  
-  
 
   const uploadAdditionalImages = async (files: File[]) => {
     try {
@@ -211,40 +210,33 @@ const ProfileDetails: React.FC = () => {
       alert("Failed to upload images. Please try again.");
       return [];
     }
-  };;
-
+  };
 
   const handleDeleteImage = async (index: number) => {
     if (!userEmail || !profileData?.additionalImages) return;
-  
+
     try {
       const imageUrl = profileData.additionalImages[index];
-      const decodedPath = decodeURIComponent(new URL(imageUrl).pathname).replace(
-        /^\/v0\/b\/[^/]+\/o\//,
-        ""
-      ); // Extract the storage path
+      const decodedPath = decodeURIComponent(new URL(imageUrl).pathname).replace(/^\/v0\/b\/[^/]+\/o\//, ""); // Extract the storage path
       const imageRef = ref(storage, decodedPath);
-  
+      const [previewImage, setPreviewImage] = useState<string | null>(null); // State for previewing images
       // Remove the image from Firebase Storage
       await deleteObject(imageRef);
-  
+
       // Update the profile data locally and in Firestore
-      const updatedImages = profileData.additionalImages.filter((_:any, i:any) => i !== index);
+      const updatedImages = profileData.additionalImages.filter((_: any, i: any) => i !== index);
       setProfileData((prev) => ({ ...prev, additionalImages: updatedImages }));
       form.setValue("additionalImages", updatedImages);
-  
+
       const profileRef = doc(db, "profiles", userEmail);
       await setDoc(profileRef, { additionalImages: updatedImages }, { merge: true });
-  
+
       alert("Image deleted successfully!");
     } catch (error) {
       console.error("Error deleting image:", error);
       alert("Failed to delete the image. Please try again.");
     }
   };
-  
-  
-  
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-200 flex p-4">
@@ -255,11 +247,106 @@ const ProfileDetails: React.FC = () => {
         <fieldset className="border p-4 rounded-lg">
           <legend className="text-lg font-bold text-purple-700">Personal Information</legend>
           <div className="grid grid-cols-4 gap-4">
-            <div>
-              <label className="block font-medium text-gray-700">Profile Picture</label>
-              {profileData?.profilePicture && <img src={profileData.profilePicture} alt="Profile" className="w-20 h-20 rounded-full mb-2" />}
-              <input type="file" accept="image/*" onChange={(e) => form.setValue("profilePicture", e.target.files ? e.target.files[0] : null)} />
+            <div className="space-y-6">
+              <div className="space-y-6">
+                {/* Profile Picture Section */}
+                <div>
+                  <div className="space-y-6">
+                    {/* Profile Picture Section */}
+                    <div>
+                      <label className="block font-medium text-gray-800 mb-2">Profile Picture</label>
+                      <div className="flex items-center space-x-4">
+                        {profileData?.profilePicture ? (
+                          <img
+                            src={typeof profileData.profilePicture === "string" ? profileData.profilePicture : URL.createObjectURL(profileData.profilePicture)}
+                            alt="Profile"
+                            className="w-24 h-24 rounded-full border border-gray-300 shadow-sm cursor-pointer"
+                            onClick={() => setPreviewImage(typeof profileData.profilePicture === "string" ? profileData.profilePicture : URL.createObjectURL(profileData.profilePicture))}
+                          />
+                        ) : (
+                          <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-300 shadow-sm">No Image</div>
+                        )}
+                        <div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                const newImage = e.target.files[0];
+                                form.setValue("profilePicture", newImage); // Update form state
+                                setProfileData((prev) => ({
+                                  ...prev,
+                                  profilePicture: newImage, // Update local state to display immediately
+                                }));
+                              }
+                            }}
+                            className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Additional Images Section */}
+                    <div>
+                      <label className="block font-medium text-gray-800 mb-2">Additional Images</label>
+                      <div className="flex flex-wrap gap-4">
+                        {/* Display Existing Images */}
+                        {profileData?.additionalImages &&
+                          profileData.additionalImages.map((url: string, index: number) => (
+                            <div key={index} className="relative group w-20 h-20 rounded-md overflow-hidden border border-gray-300 shadow-sm cursor-pointer" onClick={() => setPreviewImage(url)}>
+                              <img src={url} alt={`Additional ${index + 1}`} className="object-cover w-full h-full" />
+                              <button
+                                type="button"
+                                className="absolute top-1 right-1 bg-red-600 text-white text-xs p-1 rounded-full opacity-0 group-hover:opacity-100"
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent triggering the preview modal
+                                  handleDeleteImage(index);
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        {/* File Input for Additional Images */}
+                        <label className="w-20 h-20 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-300 shadow-sm cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={async (e) => {
+                              const files = e.target.files ? Array.from(e.target.files) : [];
+                              if (files.length > 0) {
+                                const uploadedUrls = await uploadAdditionalImages(files);
+                                form.setValue("additionalImages", [...(form.getValues("additionalImages") || []), ...uploadedUrls]);
+                                setProfileData((prev) => ({
+                                  ...prev,
+                                  additionalImages: [...(prev?.additionalImages || []), ...uploadedUrls],
+                                }));
+                              }
+                            }}
+                            className="hidden"
+                          />
+                          <span className="text-xs font-medium">Add Image</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Image Preview Modal */}
+                    {previewImage && (
+                      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                        <div className="relative">
+                          <img src={previewImage} alt="Preview" className="max-w-full max-h-screen rounded-lg shadow-lg" />
+                          <button className="absolute top-2 right-2 bg-white text-black text-lg font-bold p-2 rounded-full" onClick={() => setPreviewImage(null)}>
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
+
             <InputField control={form.control} name="fullName" label="Full Name" type="text" placeholder={""} />
             <SelectField
               control={form.control}
@@ -271,43 +358,6 @@ const ProfileDetails: React.FC = () => {
                 { value: "Other", label: "Other" },
               ]}
             />
-
-            <div>
-              <label className="block font-medium text-gray-700">Additional Images</label>
-              <div className="flex flex-wrap gap-4">
-                {/* Display existing images */}
-                {profileData?.additionalImages &&
-                  profileData.additionalImages.map((url: string, index: number) => (
-                    <div key={index} className="relative group">
-                      <img src={url} alt={`Additional ${index + 1}`} className="w-16 h-16 rounded-md border" />
-                      {/* Delete Button */}
-                      <button
-                        type="button"
-                        className="absolute top-0 right-0 bg-red-600 text-white text-xs p-1 rounded-full opacity-0 group-hover:opacity-100"
-                        onClick={() => handleDeleteImage(index)}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-              </div>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={async (e) => {
-                  const files = e.target.files ? Array.from(e.target.files) : [];
-                  if (files.length > 0) {
-                    const uploadedUrls = await uploadAdditionalImages(files);
-                    form.setValue("additionalImages", [...(form.getValues("additionalImages") || []), ...uploadedUrls]);
-                    setProfileData((prev) => ({
-                      ...prev,
-                      additionalImages: [...(prev?.additionalImages || []), ...uploadedUrls],
-                    }));
-                  }
-                }}
-              />
-            </div>
 
             <InputField control={form.control} name="dateOfBirth" label="Date of Birth" type="date" placeholder={""} />
             <InputField control={form.control} name="email" label="Email" type="email" placeholder={""} />
