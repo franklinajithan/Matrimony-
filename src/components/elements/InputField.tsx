@@ -13,7 +13,7 @@ const InputField: React.FC<InputFieldProps> = ({ control, name, label, type, pla
   return (
     <div className="mb-4">
       {/* Link the label to the input using htmlFor and id */}
-      <label className="block text-sm font-medium text-gray-700" htmlFor={name}>
+      <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor={name}>
         {label}
       </label>
       <Controller

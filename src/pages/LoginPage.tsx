@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-600 to-violet-600">
+    <main className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-600 via-pink-500 to-red-500">
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg" aria-labelledby="login-form-title">
         <h1 id="login-form-title" className="text-lg font-semibold text-gray-800 mb-6">
           Welcome to Matrimony!

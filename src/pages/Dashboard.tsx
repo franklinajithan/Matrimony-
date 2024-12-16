@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaStar, FaEye, FaHeart, FaCommentDots, FaBell } from "react-icons/fa";
 
+
 const Dashboard: React.FC = () => {
   const [matches] = useState([
     { name: "John Doe", age: 28, location: "London", compatibility: "95%", img: "https://via.placeholder.com/100" },
@@ -42,6 +43,7 @@ const Dashboard: React.FC = () => {
         <h1 className="text-2xl font-bold ml-5">Dashboard</h1>
       
       </header>
+      
 
       {/* Main Content */}
       <main className="p-6 space-y-8">

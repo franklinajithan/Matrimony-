@@ -55,12 +55,12 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen  bg-gradient-to-r from-purple-600 to-violet-600">
+    <div className="flex items-center justify-center min-h-screen  bg-gradient-to-r from-purple-600 via-pink-500 to-red-500">
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Sign Up</h2>
 
         
-        <InputField control={form.control} name="displayName" label="Full Name" placeholder="Enter your full name" />
+        <InputField control={form.control} name="displayName" label="Full Name" placeholder="Enter your full name" type={"text"} />
 
         {/* Email Field */}
         <InputField control={form.control} name="email" label="Email" type="email" placeholder="Enter your email" />
