@@ -9,6 +9,7 @@ import NotFound from "../pages/NotFound";
 
 import UserList from "../pages/UserList";
 import ProtectedRoute from "./ProtectedRoute";
+import DetailPage from "../pages/DetailPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -40,6 +41,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <UserList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/user/:id"
+        element={
+          <ProtectedRoute>
+            <DetailPage />
           </ProtectedRoute>
         }
       />

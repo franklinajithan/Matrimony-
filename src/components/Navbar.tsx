@@ -14,7 +14,6 @@ const Navbar: React.FC = () => {
   // Track Authentication State
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-
       if (currentUser) {
         setIsUserLoggedIn(true);
         setUser(currentUser);
@@ -31,7 +30,7 @@ const Navbar: React.FC = () => {
     try {
       // Sign out the user using Firebase
       // await signOut(auth);
-      localStorage.removeItem("user");
+      localStorage.clear();
 
       navigate("/login");
 
@@ -45,12 +44,16 @@ const Navbar: React.FC = () => {
     <header className="bg-gradient-to-r from-purple-900 via-purple-500 to-violet-700 text-white py-4 px-6 flex justify-between items-center shadow-md">
       {/* Logo Section */}
       <div className="text-3xl font-bold text-white ">
-       {isUserLoggedIn && <Link to="/dashboard" className="text-white ">
-          Matrimony
-        </Link>} 
-        {!isUserLoggedIn && <Link to="/dashboard" className="text-white ">
-          Matrimony
-        </Link>} 
+        {isUserLoggedIn && (
+          <Link to="/dashboard" className="text-white ">
+            Matrimony
+          </Link>
+        )}
+        {!isUserLoggedIn && (
+          <Link to="/dashboard" className="text-white ">
+            Matrimony
+          </Link>
+        )}
       </div>
 
       {/* Search Bar */}

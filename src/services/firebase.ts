@@ -1,11 +1,11 @@
-// Import the functions you need from the SDKs you need
+// Import necessary Firebase SDKs
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
+// Firebase configuration from environment variables
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -16,14 +16,28 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
+// Initialize Firebase app
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
 
-//const db = getFirestore(app);
+// Initialize Analytics (only if browser supports it)
+let analytics: ReturnType<typeof getAnalytics> | null = null;
+if (typeof window !== "undefined") {
+  analytics = getAnalytics(app);
+}
+
+// Initialize Authentication with Local Persistence
+const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence)
+  .then(() => console.log("Auth persistence set to local storage"))
+  .catch((error) => console.error("Error setting auth persistence:", error));
+
+// Initialize Firestore with long polling for better compatibility
 const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true
-})
+  experimentalForceLongPolling: true, // Useful for environments like local emulators
+});
+
+// Initialize Storage
 const storage = getStorage(app);
+
+// Export Firebase services
 export { app, analytics, auth, db, storage };

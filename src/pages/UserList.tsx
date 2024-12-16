@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { Link } from "react-router-dom";
 
 const UserList: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -103,15 +104,28 @@ const UserList: React.FC = () => {
 
       {/* User Cards */}
       <main className="flex-1 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-6">
           {displayedUsers.map((user) => (
-            <div key={user.id} className="p-4 bg-white rounded-lg shadow-md text-center">
-              <img src={user.profilePicture || `https://via.placeholder.com/150?text=${user.name}`} alt={user.name} className="w-20 h-20 mx-auto rounded-full mb-4" />
-              <h3 className="text-lg font-bold">{user.name}</h3>
-              <p className="text-gray-600">Age: {user.age}</p>
-              <p className="text-gray-600">City: {user.city}</p>
-              <p className="text-gray-600">Occupation: {user.occupation}</p>
-            </div>
+            <Link
+              key={user.id}
+              to={`/user/${user.id}`} // Redirect to a route with the user ID
+              className="block p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition flex items-center space-x-4"
+            >
+              {/* Left: Image */}
+              <div>
+                <img src={user.profilePicture || `https://via.placeholder.com/150?text=${user.name}`} alt={user.name} className="w-24 h-24 rounded-full object-cover" />
+              </div>
+              {/* Right: Details */}
+              <div className="text-left">
+                <h3 className="text-xl font-bold text-gray-800">{user.name}</h3>
+                <p className="text-gray-600"><strong>Age:</strong> {user.age} </p>
+                <p className="text-gray-600"><strong>City:</strong> {user.city}  </p>
+                <p className="text-gray-600"><strong>Occupation:</strong> {user.occupation}   </p>
+                <p className="text-gray-600"><strong>Marital Status:</strong> {user.status}</p>
+                <p className="text-gray-600"><strong>Education:</strong> {user.education}</p>
+                <p className="text-gray-600"><strong>Living In:</strong> {user.livingIn}</p>
+              </div>
+            </Link>
           ))}
         </div>
 
