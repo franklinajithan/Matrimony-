@@ -25,7 +25,7 @@ const Chat: React.FC = () => {
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState(null)
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
 
 
   // Request notification permission when the component mounts
