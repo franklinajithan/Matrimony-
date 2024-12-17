@@ -239,115 +239,79 @@ const ProfileDetails: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-200 flex p-4">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full bg-white p-8 rounded-lg shadow-lg space-y-8">
+    <main className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-200 flex p-2 sm:p-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full bg-white p-4 sm:p-8 rounded-lg shadow-lg space-y-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Profile Details</h1>
 
         {/* Personal Information */}
+
         <fieldset className="border p-4 rounded-lg">
-          <legend className="text-lg font-bold text-purple-700">Personal Information</legend>
-          <div className="grid grid-cols-4 gap-4">
-            <div className="space-y-6">
-              <div className="space-y-6">
-                {/* Profile Picture Section */}
-                <div>
-                  <div className="space-y-6">
-                    {/* Profile Picture Section */}
-                    <div>
-                      <label className="block font-medium text-gray-800 mb-2">Profile Picture</label>
-                      <div className="flex items-center space-x-4">
-                        {profileData?.profilePicture ? (
-                          <img
-                            src={typeof profileData.profilePicture === "string" ? profileData.profilePicture : URL.createObjectURL(profileData.profilePicture)}
-                            alt="Profile"
-                            className="w-24 h-24 rounded-full border border-gray-300 shadow-sm cursor-pointer"
-                            onClick={() => setPreviewImage(typeof profileData.profilePicture === "string" ? profileData.profilePicture : URL.createObjectURL(profileData.profilePicture))}
-                          />
-                        ) : (
-                          <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-300 shadow-sm">No Image</div>
-                        )}
-                        <div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                const newImage = e.target.files[0];
-                                form.setValue("profilePicture", newImage); // Update form state
-                                setProfileData((prev) => ({
-                                  ...prev,
-                                  profilePicture: newImage, // Update local state to display immediately
-                                }));
-                              }
-                            }}
-                            className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Additional Images Section */}
-                    <div>
-                      <label className="block font-medium text-gray-800 mb-2">Additional Images</label>
-                      <div className="flex flex-wrap gap-4">
-                        {/* Display Existing Images */}
-                        {profileData?.additionalImages &&
-                          profileData.additionalImages.map((url: string, index: number) => (
-                            <div key={index} className="relative group w-20 h-20 rounded-md overflow-hidden border border-gray-300 shadow-sm cursor-pointer" onClick={() => setPreviewImage(url)}>
-                              <img src={url} alt={`Additional ${index + 1}`} className="object-cover w-full h-full" />
-                              <button
-                                type="button"
-                                className="absolute top-1 right-1 bg-red-600 text-white text-xs p-1 rounded-full opacity-0 group-hover:opacity-100"
-                                onClick={(e) => {
-                                  e.stopPropagation(); // Prevent triggering the preview modal
-                                  handleDeleteImage(index);
-                                }}
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ))}
-                        {/* File Input for Additional Images */}
-                        <label className="w-20 h-20 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-300 shadow-sm cursor-pointer">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={async (e) => {
-                              const files = e.target.files ? Array.from(e.target.files) : [];
-                              if (files.length > 0) {
-                                const uploadedUrls = await uploadAdditionalImages(files);
-                                form.setValue("additionalImages", [...(form.getValues("additionalImages") || []), ...uploadedUrls]);
-                                setProfileData((prev) => ({
-                                  ...prev,
-                                  additionalImages: [...(prev?.additionalImages || []), ...uploadedUrls],
-                                }));
-                              }
-                            }}
-                            className="hidden"
-                          />
-                          <span className="text-xs font-medium">Add Image</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Image Preview Modal */}
-                    {previewImage && (
-                      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-                        <div className="relative">
-                          <img src={previewImage} alt="Preview" className="max-w-full max-h-screen rounded-lg shadow-lg" />
-                          <button className="absolute top-2 right-2 bg-white text-black text-lg font-bold p-2 rounded-full" onClick={() => setPreviewImage(null)}>
-                            ✕
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+          <legend className="text-base sm:text-lg font-bold text-purple-700">Personal Information</legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Profile Picture */}
+            <div>
+              <label className="block font-medium text-gray-800 mb-2">Profile Picture</label>
+              <div className="flex items-center space-x-4">
+                {profileData?.profilePicture ? (
+                  <img src={typeof profileData.profilePicture === "string" ? profileData.profilePicture : URL.createObjectURL(profileData.profilePicture)} alt="Profile" className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border shadow-sm cursor-pointer" />
+                ) : (
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 border shadow-sm">No Image</div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const newImage = e.target.files[0];
+                      form.setValue("profilePicture", newImage);
+                      setProfileData((prev) => ({
+                        ...prev,
+                        profilePicture: newImage,
+                      }));
+                    }
+                  }}
+                  className="text-sm text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border file:border-gray-300 file:bg-gray-50 hover:file:bg-gray-100"
+                />
               </div>
             </div>
 
-            <InputField control={form.control} name="fullName" label="Full Name" type="text" placeholder={""} />
+            {/* Additional Images */}
+            <div>
+              <label className="block font-medium text-gray-800 mb-2">Additional Images</label>
+              <div className="flex flex-wrap gap-2">
+                {profileData?.additionalImages?.map((url, index) => (
+                  <div key={index} className="relative group w-16 h-16 rounded-md overflow-hidden border border-gray-300 shadow-sm">
+                    <img src={url} alt={`Additional ${index}`} className="object-cover w-full h-full" />
+                    <button type="button" className="absolute top-0 right-0 bg-red-600 text-white text-xs p-1 rounded-full opacity-0 group-hover:opacity-100" onClick={() => handleDeleteImage(index)}>
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                <label className="w-16 h-16 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-300 cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={async (e) => {
+                      const files = e.target.files ? Array.from(e.target.files) : [];
+                      if (files.length) {
+                        const uploadedUrls = await uploadAdditionalImages(files);
+                        form.setValue("additionalImages", [...(form.getValues("additionalImages") || []), ...uploadedUrls]);
+                        setProfileData((prev) => ({
+                          ...prev,
+                          additionalImages: [...(prev?.additionalImages || []), ...uploadedUrls],
+                        }));
+                      }
+                    }}
+                    className="hidden"
+                  />
+                  <span className="text-xs">+ Add</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Text Fields */}
+            <InputField control={form.control} name="fullName" label="Full Name" type="text" placeholder="Enter your full name" />
             <SelectField
               control={form.control}
               name="gender"
@@ -358,31 +322,15 @@ const ProfileDetails: React.FC = () => {
                 { value: "Other", label: "Other" },
               ]}
             />
-
-            <InputField control={form.control} name="dateOfBirth" label="Date of Birth" type="date" placeholder={""} />
-            <InputField control={form.control} name="email" label="Email" type="email" placeholder={""} />
-            <InputField control={form.control} name="phone" label="Phone Number" type="tel" placeholder={""} />
-            <InputField control={form.control} name="religion" label="Religion" type="text" placeholder={""} />
-            <InputField control={form.control} name="caste" label="Caste (Optional)" type="text" placeholder={""} />
-            <InputField control={form.control} name="subCaste" label="Sub-Caste (Optional)" type="text" placeholder={""} />
-            <SelectField
-              control={form.control}
-              name="maritalStatus"
-              label="Marital Status"
-              options={[
-                { value: "Single", label: "Single" },
-                { value: "Married", label: "Married" },
-                { value: "Divorced", label: "Divorced" },
-                { value: "Widowed", label: "Widowed" },
-              ]}
-            />
+            <InputField control={form.control} name="email" label="Email" type="email" placeholder="Enter your email" />
+            <InputField control={form.control} name="phone" label="Phone Number" type="tel" placeholder="Enter phone number" />
           </div>
         </fieldset>
 
         {/* Education and Occupation */}
         <fieldset className="border p-4 rounded-lg">
-          <legend className="text-lg font-bold text-purple-700">Education and Occupation</legend>
-          <div className="grid grid-cols-4 gap-4">
+          <legend className="text-base sm:text-lg font-bold text-purple-700">Education and Occupation</legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField control={form.control} name="education" label="Education" type="text" placeholder={""} />
             <InputField control={form.control} name="occupation" label="Occupation" type="text" placeholder={""} />
             <InputField control={form.control} name="income" label="Income (Optional)" type="text" placeholder={""} />
@@ -391,8 +339,8 @@ const ProfileDetails: React.FC = () => {
 
         {/* Address Details */}
         <fieldset className="border p-4 rounded-lg">
-          <legend className="text-lg font-bold text-purple-700">Address Details</legend>
-          <div className="grid grid-cols-4 gap-4">
+          <legend className="text-base sm:text-lg font-bold text-purple-700">Address Details</legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField control={form.control} name="address" label="Address (Optional)" type="text" placeholder={""} />
             <InputField control={form.control} name="citizenship" label="Citizenship" type="text" placeholder={""} />
             <InputField control={form.control} name="country" label="Country" type="text" placeholder={""} />
@@ -403,8 +351,8 @@ const ProfileDetails: React.FC = () => {
 
         {/* Physical Attributes */}
         <fieldset className="border p-4 rounded-lg">
-          <legend className="text-lg font-bold text-purple-700">Physical Attributes</legend>
-          <div className="grid grid-cols-4 gap-4">
+        <legend className="text-base sm:text-lg font-bold text-purple-700">Physical Attributes</legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField control={form.control} name="height" label="Height" type="text" placeholder={""} />
             <InputField control={form.control} name="weight" label="Weight (Optional)" type="text" placeholder={""} />
             <InputField control={form.control} name="bloodGroup" label="Blood Group (Optional)" type="text" placeholder={""} />
@@ -432,8 +380,8 @@ const ProfileDetails: React.FC = () => {
 
         {/* Family and Preferences */}
         <fieldset className="border p-4 rounded-lg">
-          <legend className="text-lg font-bold text-purple-700">Family and Preferences</legend>
-          <div className="grid grid-cols-4 gap-4">
+        <legend className="text-base sm:text-lg font-bold text-purple-700">Family and Preferences</legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SelectField
               control={form.control}
               name="familyType"
@@ -493,8 +441,8 @@ const ProfileDetails: React.FC = () => {
 
         {/* Horoscope and Additional Information */}
         <fieldset className="border p-4 rounded-lg">
-          <legend className="text-lg font-bold text-purple-700">Horoscope and Additional Information</legend>
-          <div className="grid grid-cols-4 gap-4">
+        <legend className="text-base sm:text-lg font-bold text-purple-700">Horoscope and Additional Information</legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField control={form.control} name="horoscope" label="Horoscope (Optional)" type="text" placeholder={""} />
             <SelectField
               control={form.control}

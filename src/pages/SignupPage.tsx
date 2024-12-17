@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { auth } from "../services/firebase"; // Adjust the path to your Firebase config
+import { auth } from "../services/firebase"; // Firebase config path
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-
-import { Loader2 } from "lucide-react"; // For Loading Spinner
+import { Loader2 } from "lucide-react"; // Loading spinner
 import InputField from "../components/elements/InputField";
 
-// Zod schema for validation
+// Validation schema
 const signupSchema = z.object({
   displayName: z.string().min(2, "Full name must be at least 2 characters."),
   email: z.string().email("Invalid email address."),
@@ -17,9 +16,10 @@ const signupSchema = z.object({
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-const SignupPage = () => {
+const SignupPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -33,16 +33,13 @@ const SignupPage = () => {
     setIsLoading(true);
     setSuccessMessage("");
     try {
-      // Create user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
 
-      // Update user profile with display name
       await updateProfile(user, {
         displayName: data.displayName,
       });
 
-      console.log("User created:", user);
       setSuccessMessage("Account created successfully!");
     } catch (err: any) {
       form.setError("email", {
@@ -55,24 +52,60 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen  bg-gradient-to-r from-purple-600 via-pink-500 to-red-500">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Sign Up</h2>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 px-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full max-w-sm bg-white p-6 md:p-8 rounded-lg shadow-lg"
+        aria-labelledby="signup-form-title"
+      >
+        {/* Title */}
+        <h2 id="signup-form-title" className="text-2xl font-bold text-center text-gray-800 mb-6">
+          Sign Up
+        </h2>
 
-        
-        <InputField control={form.control} name="displayName" label="Full Name" placeholder="Enter your full name" type={"text"} />
+        {/* Full Name */}
+        <div className="mb-4">
+          <InputField
+            control={form.control}
+            name="displayName"
+            label="Full Name"
+            placeholder="Enter your full name"
+            type="text"
+          />
+        </div>
 
-        {/* Email Field */}
-        <InputField control={form.control} name="email" label="Email" type="email" placeholder="Enter your email" />
+        {/* Email */}
+        <div className="mb-4">
+          <InputField
+            control={form.control}
+            name="email"
+            label="Email"
+            placeholder="Enter your email"
+            type="email"
+          />
+        </div>
 
-        {/* Password Field */}
-        <InputField control={form.control} name="password" label="Password" type="password" placeholder="Enter your password" />
+        {/* Password */}
+        <div className="mb-6">
+          <InputField
+            control={form.control}
+            name="password"
+            label="Password"
+            placeholder="Enter your password"
+            type="password"
+          />
+        </div>
 
         {/* Submit Button */}
-        <button type="submit" disabled={isLoading} className="btn-cyan">
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={`w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center`}
+          aria-busy={isLoading}
+        >
           {isLoading ? (
             <>
-              <Loader2 size={20} className="animate-spin" /> &nbsp; Creating Account...
+              <Loader2 size={20} className="animate-spin mr-2" /> Creating Account...
             </>
           ) : (
             "Sign Up"
@@ -80,10 +113,16 @@ const SignupPage = () => {
         </button>
 
         {/* Success Message */}
-        {successMessage && <p className="text-green-500 text-sm mt-4">{successMessage}</p>}
+        {successMessage && (
+          <p className="text-green-500 text-sm text-center mt-4">{successMessage}</p>
+        )}
 
-        {/* Error Messages */}
-        {form.formState.errors.email && <p className="text-red-500 text-sm mt-4">{form.formState.errors.email.message}</p>}
+        {/* Error Message */}
+        {form.formState.errors.email && (
+          <p className="text-red-500 text-sm text-center mt-4">
+            {form.formState.errors.email.message}
+          </p>
+        )}
       </form>
     </div>
   );

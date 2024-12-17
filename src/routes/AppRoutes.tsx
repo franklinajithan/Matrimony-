@@ -10,6 +10,7 @@ import NotFound from "../pages/NotFound";
 import UserList from "../pages/UserList";
 import ProtectedRoute from "./ProtectedRoute";
 import DetailPage from "../pages/DetailPage";
+import ChatPage from "../pages/ChatPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -49,6 +50,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <DetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chatPage"
+        element={
+          <ProtectedRoute>
+            <ChatPage />
           </ProtectedRoute>
         }
       />
