@@ -130,7 +130,7 @@ const ProfileDetails: React.FC = () => {
 
         // Update form with fetched data
         form.reset(profileData);
-        debugger;
+     
         // Set profile data for rendering
         setProfileData((prev) => ({
           ...prev,
@@ -158,7 +158,7 @@ const ProfileDetails: React.FC = () => {
   };
 
   const onSubmit = async (data: ProfileFormValues) => {
-    debugger;
+
     setIsLoading(true);
     try {
       if (!userEmail) throw new Error("User not authenticated");
@@ -174,14 +174,14 @@ const ProfileDetails: React.FC = () => {
       // Step 2: Upload additional images
       const additionalFiles = data.additionalImages || [];
       //const additionalImageURLs = await uploadAdditionalImages(additionalFiles as File[]);
-      debugger;
+  
       // Step 3: Prepare the final profile data
       const profileData = {
         ...data,
         profilePicture: profilePictureURL,
         additionalImages: additionalFiles, // Ensure these URLs are stored properly
       };
-      debugger;
+ 
       // Step 4: Save the profile data to Firestore
       const profileRef = doc(db, "profiles", userEmail);
       await setDoc(profileRef, profileData);
