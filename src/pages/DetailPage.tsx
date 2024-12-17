@@ -52,10 +52,9 @@ const UserDetailPage: React.FC = () => {
     <div className="mb-6">
       <h3 className="text-lg font-bold text-gray-800 mb-2">{title}</h3>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {Object.entries(data).map(([key, value]) => (
+        {Object.entries(data).map(([key, value]: any) => (
           <p key={key} className="text-gray-600">
-            <strong className="capitalize">{key.replace(/([A-Z])/g, " $1")}:</strong>{" "}
-            {value || "N/A"}
+            <strong className="capitalize">{key.replace(/([A-Z])/g, " $1")}:</strong> {value}
           </p>
         ))}
       </div>
@@ -67,31 +66,15 @@ const UserDetailPage: React.FC = () => {
       <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
         {/* Header Section */}
         <div className="relative">
-          <img
-            src={
-              userData?.coverPhoto ||
-              "https://via.placeholder.com/1200x400?text=Cover+Image"
-            }
-            alt="Cover"
-            className="w-full h-56 object-cover"
-          />
+          <img src={userData?.coverPhoto || "https://via.placeholder.com/1200x400?text=Cover+Image"} alt="Cover" className="w-full h-56 object-cover" />
           <div className="absolute bottom-0 left-6 transform translate-y-1/2">
-            <img
-              src={
-                userData?.profilePicture ||
-                "https://via.placeholder.com/150?text=Profile+Image"
-              }
-              alt="Profile"
-              className="w-36 h-36 rounded-full border-4 border-white shadow-md"
-            />
+            <img src={userData?.profilePicture || "https://via.placeholder.com/150?text=Profile+Image"} alt="Profile" className="w-36 h-36 rounded-full border-4 border-white shadow-md" />
           </div>
         </div>
 
         {/* User Content */}
         <div className="p-6 mt-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            {userData?.fullName || "Name Not Provided"}
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">{userData?.fullName || "Name Not Provided"}</h1>
           <p className="text-gray-600 mb-6">{userData?.occupation || "Occupation Not Provided"}</p>
 
           {/* Basic Information */}
@@ -147,12 +130,7 @@ const UserDetailPage: React.FC = () => {
               <h3 className="text-lg font-bold text-gray-800 mb-4">Additional Images</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {userData.additionalImages.map((img: string, index: number) => (
-                  <img
-                    key={index}
-                    src={img}
-                    alt={`Additional Image ${index + 1}`}
-                    className="w-full h-40 object-cover rounded-lg shadow-sm"
-                  />
+                  <img key={index} src={img} alt={`Additional Image ${index + 1}`} className="w-full h-40 object-cover rounded-lg shadow-sm" />
                 ))}
               </div>
             </div>
