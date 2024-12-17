@@ -279,7 +279,7 @@ const ProfileDetails: React.FC = () => {
             <div>
               <label className="block font-medium text-gray-800 mb-2">Additional Images</label>
               <div className="flex flex-wrap gap-2">
-                {profileData?.additionalImages?.map((url, index) => (
+                {profileData?.additionalImages?.map((url:any, index:any) => (
                   <div key={index} className="relative group w-16 h-16 rounded-md overflow-hidden border border-gray-300 shadow-sm">
                     <img src={url} alt={`Additional ${index}`} className="object-cover w-full h-full" />
                     <button type="button" className="absolute top-0 right-0 bg-red-600 text-white text-xs p-1 rounded-full opacity-0 group-hover:opacity-100" onClick={() => handleDeleteImage(index)}>
