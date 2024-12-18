@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FaStar, FaEye, FaHeart, FaCommentDots, FaBell } from "react-icons/fa";
+import { useUser } from '../context/UserContext';
 
 
 const Dashboard: React.FC = () => {
+  const { user, loading } = useUser();
+
   const [matches] = useState([
     { name: "John Doe", age: 28, location: "London", compatibility: "95%", img: "https://via.placeholder.com/100" },
     { name: "Jane Smith", age: 26, location: "Manchester", compatibility: "90%", img: "https://via.placeholder.com/100" },
@@ -43,7 +46,16 @@ const Dashboard: React.FC = () => {
         <h1 className="text-2xl font-bold ml-5">Dashboard</h1>
       
       </header>
-      
+      <div>
+      {user ? (
+        <div>
+          <h1>Welcome, {user.displayName || user.email}</h1>
+          {/* Additional user info */}
+        </div>
+      ) : (
+        <p>No user is logged in.</p>
+      )}
+    </div>
 
       {/* Main Content */}
       <main className="p-6 space-y-8">

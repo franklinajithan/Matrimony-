@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../services/firebase";
+import { useUser } from "../context/UserContext";
 
 const UserDetailPage: React.FC = () => {
   const { id } = useParams();
+  const { user } = useUser();
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [requestSent, setRequestSent] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -31,6 +34,42 @@ const UserDetailPage: React.FC = () => {
 
     fetchUserData();
   }, [id]);
+
+    // Function to check if request already exists
+    const checkExistingRequest = async () => {
+      const q = query(
+        collection(db, "friendRequests"),
+        where("fromUser", "==", user.email),
+        where("toUser", "==", userData?.email)
+      );
+  
+      const querySnapshot = await getDocs(q);
+      return !querySnapshot.empty;
+    };
+  
+    // Send Friend Request Function
+    const sendFriendRequest = async () => {
+      if (!user || !userData?.email) return;
+  
+      const alreadyExists = await checkExistingRequest();
+      if (alreadyExists) {
+        alert("Friend request already sent.");
+        return;
+      }
+  
+      try {
+        await addDoc(collection(db, "friendRequests"), {
+          fromUser: user.email,
+          toUser: userData.email,
+          status: "pending",
+        });
+        setRequestSent(true);
+        alert("Friend request sent successfully!");
+      } catch (err) {
+        console.error("Error sending friend request:", err);
+        alert("Failed to send friend request. Try again later.");
+      }
+    };
 
   if (loading) {
     return (
@@ -60,7 +99,7 @@ const UserDetailPage: React.FC = () => {
       </div>
     </div>
   );
-// Test
+  // Test
   return (
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -76,6 +115,17 @@ const UserDetailPage: React.FC = () => {
         <div className="p-6 mt-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-4">{userData?.fullName || "Name Not Provided"}</h1>
           <p className="text-gray-600 mb-6">{userData?.occupation || "Occupation Not Provided"}</p>
+
+          {/* Friend Request Button */}
+          {user?.email !== userData?.email && (
+            <button
+              onClick={sendFriendRequest}
+              className={`px-4 py-2 rounded ${requestSent ? "bg-gray-400 text-white cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"}`}
+              disabled={requestSent}
+            >
+              {requestSent ? "Request Sent" : "Send Friend Request"}
+            </button>
+          )}
 
           {/* Basic Information */}
           {renderSection("Personal Information", {

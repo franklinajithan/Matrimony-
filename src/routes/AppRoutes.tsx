@@ -11,6 +11,7 @@ import UserList from "../pages/UserList";
 import ProtectedRoute from "./ProtectedRoute";
 import DetailPage from "../pages/DetailPage";
 import ChatPage from "../pages/ChatPage";
+import FriendsRequestPage from "../pages/FriendsRequestPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -58,6 +59,15 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <ChatPage />
+          </ProtectedRoute>
+        }
+      />
+
+<Route
+        path="/friends"
+        element={
+          <ProtectedRoute>
+            <FriendsRequestPage />
           </ProtectedRoute>
         }
       />
