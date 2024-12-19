@@ -47,18 +47,18 @@ const Dashboard: React.FC = () => {
   const horoscope = "Today is a great day for making connections and exploring new opportunities in your relationships.";
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-purple-50 to-purple-200">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-purple-50 to-purple-200">
     {/* Sidebar */}
-    <aside className="w-1/4 p-6 bg-purple-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-lg font-bold text-purple-900 mb-6">Friends</h2>
+    <aside className="w-full md:w-1/4 p-4 md:p-6 bg-purple-100">
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg">
+        <h2 className="text-lg font-bold text-purple-900 mb-4 md:mb-6">Friends</h2>
         <ul className="space-y-4">
           {friends.map((friend, index) => (
             <li key={index} className="flex items-center">
               <img
                 src={friend.img}
                 alt={friend.name}
-                className="w-12 h-12 object-cover rounded-full mr-4"
+                className="w-10 h-10 md:w-12 md:h-12 object-cover rounded-full mr-4"
               />
               <div>
                 <h3 className="text-sm font-bold text-gray-800">{friend.name}</h3>
@@ -67,21 +67,21 @@ const Dashboard: React.FC = () => {
             </li>
           ))}
         </ul>
-  
-        <h2 className="text-lg font-bold text-purple-900 my-6">Friend Requests</h2>
+        {/* Friend Requests */}
+        <h2 className="text-lg font-bold text-purple-900 my-4 md:my-6">Friend Requests</h2>
         <ul className="space-y-4">
           {friendRequests.map((request, index) => (
             <li key={index} className="flex items-center">
               <img
                 src={request.img}
                 alt={request.name}
-                className="w-12 h-12 object-cover rounded-full mr-4"
+                className="w-10 h-10 md:w-12 md:h-12 object-cover rounded-full mr-4"
               />
               <div>
                 <h3 className="text-sm font-bold text-gray-800">{request.name}</h3>
                 <p className="text-xs text-gray-600">{request.location}</p>
               </div>
-              <button className="ml-auto text-sm text-purple-700 font-bold">
+              <button className="ml-auto text-xs md:text-sm text-purple-700 font-bold">
                 Accept
               </button>
             </li>
@@ -89,25 +89,22 @@ const Dashboard: React.FC = () => {
         </ul>
       </div>
     </aside>
-  
     {/* Main Content */}
-    <main className="flex-1 p-6 space-y-8">
+    <main className="flex-1 p-4 md:p-6 space-y-4 md:space-y-8">
       {/* Header */}
       <header className="p-4 bg-gradient-to-r from-violet-800 to-violet-700 text-white rounded-lg">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-xl md:text-2xl font-bold">Dashboard</h1>
       </header>
-  
       {/* Welcome Section */}
-      <section className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-lg font-bold text-gray-800">
+      <section className="bg-white p-4 md:p-6 rounded-lg shadow-lg">
+        <h2 className="text-sm md:text-lg font-bold text-gray-800">
           {user ? `Welcome, ${user.displayName || user.email}` : "No user is logged in."}
         </h2>
       </section>
-  
       {/* Featured Profiles */}
-      <section id="featured" className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-purple-900 mb-4">Featured Profiles</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section id="featured" className="bg-white p-4 md:p-6 rounded-lg shadow-lg">
+        <h2 className="text-lg md:text-xl font-bold text-purple-900 mb-4">Featured Profiles</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {matches.map((match, index) => (
             <div
               key={index}
@@ -116,28 +113,23 @@ const Dashboard: React.FC = () => {
               <img
                 src={match.img}
                 alt={match.name}
-                className="w-24 h-24 object-cover rounded-full mb-4"
+                className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-full mb-4"
               />
-              <h3 className="text-lg font-bold text-gray-800">{match.name}</h3>
-              <p className="text-sm text-gray-600">{match.age} years old</p>
-              <p className="text-sm text-gray-600">{match.location}</p>
-              <p className="text-sm text-purple-700 font-semibold mt-2">
+              <h3 className="text-sm md:text-lg font-bold text-gray-800">{match.name}</h3>
+              <p className="text-xs md:text-sm text-gray-600">{match.age} years old</p>
+              <p className="text-xs md:text-sm text-gray-600">{match.location}</p>
+              <p className="text-xs md:text-sm text-purple-700 font-semibold mt-2">
                 Compatibility: {match.compatibility}
               </p>
             </div>
           ))}
         </div>
       </section>
-  
       {/* Other Sections */}
-      {[
-        { id: "favorites", title: "Your Favorites", data: favorites },
-        { id: "visitors", title: "Recent Visitors", data: recentVisitors },
-        { id: "recommendations", title: "Recommendations", data: recommendations },
-      ].map(({ id, title, data }) => (
-        <section key={id} id={id} className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-xl font-bold text-purple-900 mb-4">{title}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[{ id: "favorites", title: "Your Favorites", data: favorites }, { id: "visitors", title: "Recent Visitors", data: recentVisitors }, { id: "recommendations", title: "Recommendations", data: recommendations }].map(({ id, title, data }) => (
+        <section key={id} id={id} className="bg-white p-4 md:p-6 rounded-lg shadow-lg">
+          <h2 className="text-lg md:text-xl font-bold text-purple-900 mb-4">{title}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {data.map((item, index) => (
               <div
                 key={index}
@@ -146,51 +138,19 @@ const Dashboard: React.FC = () => {
                 <img
                   src={item.img}
                   alt={item.name}
-                  className="w-24 h-24 object-cover rounded-full mb-4"
+                  className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-full mb-4"
                 />
-                <h3 className="text-lg font-bold text-gray-800">{item.name}</h3>
-                <p className="text-sm text-gray-600">{item.age} years old</p>
-                <p className="text-sm text-gray-600">{item.location}</p>
+                <h3 className="text-sm md:text-lg font-bold text-gray-800">{item.name}</h3>
+                <p className="text-xs md:text-sm text-gray-600">{item.age} years old</p>
+                <p className="text-xs md:text-sm text-gray-600">{item.location}</p>
               </div>
             ))}
           </div>
         </section>
       ))}
-  
-      {/* Messages */}
-      <section id="messages" className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-purple-900 mb-4">Messages</h2>
-        <ul className="space-y-4">
-          {messages.map((message, index) => (
-            <li
-              key={index}
-              className="bg-white p-4 rounded-lg shadow-lg flex justify-between items-center"
-            >
-              <div>
-                <h3 className="text-lg font-bold text-gray-800">{message.from}</h3>
-                <p className="text-sm text-gray-600">{message.text}</p>
-              </div>
-              <span className="text-sm text-gray-500">{message.time}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-  
-      {/* Events */}
-      <section id="events" className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-purple-900 mb-4">Upcoming Events</h2>
-        <ul className="space-y-4">
-          {events.map((event, index) => (
-            <li key={index} className="bg-white p-4 rounded-lg shadow-lg">
-              <h3 className="text-lg font-bold text-gray-800">{event.title}</h3>
-              <p className="text-sm text-gray-600">{event.date}</p>
-              <p className="text-sm text-gray-600">{event.description}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
     </main>
   </div>
+  
   
   );
 };
