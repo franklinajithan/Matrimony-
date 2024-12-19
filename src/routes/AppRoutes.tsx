@@ -63,7 +63,7 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-<Route
+      <Route
         path="/friends"
         element={
           <ProtectedRoute>
