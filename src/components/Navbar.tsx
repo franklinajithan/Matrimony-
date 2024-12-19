@@ -31,12 +31,14 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-purple-900 via-purple-500 to-violet-700 text-white py-4 px-6 shadow-md">
+    <header className="bg-gradient-to-r from-purple-900 via-purple-600 to-violet-700 text-white py-4 px-6 shadow-md">
       {/* Top Navigation */}
       <div className="flex justify-between items-center">
         {/* Logo */}
-        <div className="text-2xl font-bold">
-          <Link to="/dashboard">Matrimony</Link>
+        <div className="text-2xl font-bold text-white">
+          <Link to="/dashboard">
+            <span className="text-white">Matrimony</span>
+          </Link>
         </div>
 
         {/* Mobile Menu Icon */}
