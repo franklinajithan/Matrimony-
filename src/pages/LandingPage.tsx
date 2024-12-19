@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaHeart, FaTimes } from "react-icons/fa";
 import horoscopeImg from "../assets/images/horoscope.png";
 import aiMatchingImg from "../assets/images/ai_matching.png";
 import privacyImg from "../assets/images/privacy.png";
@@ -24,7 +24,11 @@ const LandingPage = () => {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           {/* Logo */}
           <div className="text-2xl font-bold text-purple-600">
-            <Link to="/">Matrimony</Link>
+            <Link to="/">
+              <span className="flex items-center text-3xl font-bold">
+                CUPID <FaHeart className="mx-2 text-red-500 text-3xl" /> KNOTS
+              </span>
+            </Link>
           </div>
 
           {/* Hamburger Menu */}
@@ -92,16 +96,26 @@ const LandingPage = () => {
       <section className="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 text-white mt-16">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between text-center md:text-left space-y-8 md:space-y-0">
           {/* Text Content */}
-          <div className="md:w-2/3">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-4 sm:mb-6 mt-10">Welcome to Matrimony</h1>
-            <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8">Find your perfect match with our advanced matchmaking platform.</p>
+          <div className="md:w-3/4 mx-auto text-center">
+            {/* Animated Heading */}
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-4 sm:mb-6 mt-10 animate-fadeInUp">
+              Welcome to{" "}
+              <span className="inline-flex items-center text-inherit font-bold">
+                CUPID <FaHeart className="mx-2 text-white animate-bounce" /> KNOTS
+              </span>
+            </h1>
+
+            {/* Subheading */}
+            <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 animate-fadeIn delay-100">Find your perfect match with our advanced matchmaking platform.</p>
+
+            {/* Call-to-Action Button */}
             <Link to="/signup">
               <button className="bg-white text-pink-600 font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-gray-100 transition">Get Started</button>
             </Link>
           </div>
 
           {/* Welcome Image */}
-          <div className="md:w-1/3 flex justify-center items-center">
+          <div className="md:w-1/4 flex justify-center items-center">
             <img
               src={welcome} // Replace with the correct image path
               alt="Welcome"
@@ -117,42 +131,20 @@ const LandingPage = () => {
           <h2 className="text-3xl md:text-5xl font-extrabold text-blue-900 mb-8">Why Choose Us</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { title: "Horoscope Matching", icon: horoscopeImg },
-              { title: "Smart Matching", icon: aiMatchingImg },
-              { title: "Privacy Guaranteed", icon: privacyImg },
-              { title: "Global Reach", icon: globalReachImg },
-              { title: "In-Depth Profiles", icon: detailedProfilesImg },
-              { title: "Secure Messaging", icon: secureMessagingImg },
-              { title: "Verified Profiles", icon: verifiedProfilesImg },
-              { title: "Profile Template", icon: profileTemplateImg },
-              // { title: "Cultural Preferences", icon: culturalPreferencesImg },
-              //  { title: "Advanced Filters", icon: advancedFiltersImg },
-              //  { title: "Event Invitations", icon: eventInvitationsImg },
-              // { title: "Family Integration", icon: familyIntegrationImg },
-              // { title: "Match Insights", icon: matchInsightsImg },
-              { title: "Custom Preferences", icon: customPreferencesImg },
-              // { title: "Personalized Notifications", icon: personalizedNotificationsImg },
-              // { title: "Astrological Guidance", icon: astrologicalGuidanceImg },
-              { title: "Real Time Chat", icon: realTimeChatImg },
-              { title: "Language Preferences", icon: languagePreferencesImg },
-              // { title: "Video Introductions", icon: videoIntroductionsImg },
-              // { title: "AI-Driven Compatibility Tests", icon: aiCompatibilityImg },
-              // { title: "Photo Verification", icon: photoVerificationImg },
-              // { title: "Lifestyle Preferences", icon: lifestylePreferencesImg },
-              // { title: "Hobby and Interest Matching", icon: hobbyMatchingImg },
-              // { title: "Success Stories", icon: successStoriesImg },
-              // { title: "Daily Match Suggestions", icon: dailySuggestionsImg },
-              // { title: "Interactive Questionnaires", icon: questionnairesImg },
-              //  { title: "Social Media Integration", icon: socialMediaIntegrationImg },
-              //  { title: "Premium Membership Perks", icon: premiumMembershipImg },
-              //  { title: "Block and Report Features", icon: blockReportImg },
-              // { title: "Interest-Based Events", icon: interestEventsImg },
-              // { title: "Profile Insights and Analytics", icon: profileInsightsImg },
-              { title: "Mobile App Support", icon: mobileAppImg },
-              // { title: "24/7 Customer Support", icon: customerSupportImg },
-              // { title: "Success Planner", icon: successPlannerImg },
+              { title: "Horoscope Matching", icon: horoscopeImg, borderColor: "border-t-red-500" },
+              { title: "Smart Matching", icon: aiMatchingImg, borderColor: "border-t-blue-500" },
+              { title: "Privacy Guaranteed", icon: privacyImg, borderColor: "border-t-green-500" },
+              { title: "Global Reach", icon: globalReachImg, borderColor: "border-t-yellow-500" },
+              { title: "In-Depth Profiles", icon: detailedProfilesImg, borderColor: "border-t-purple-500" },
+              { title: "Secure Messaging", icon: secureMessagingImg, borderColor: "border-t-pink-500" },
+              { title: "Verified Profiles", icon: verifiedProfilesImg, borderColor: "border-t-indigo-500" },
+              { title: "Profile Template", icon: profileTemplateImg, borderColor: "border-t-orange-500" },
+              { title: "Custom Preferences", icon: customPreferencesImg, borderColor: "border-t-cyan-500" },
+              { title: "Real Time Chat", icon: realTimeChatImg, borderColor: "border-t-teal-500" },
+              { title: "Language Preferences", icon: languagePreferencesImg, borderColor: "border-t-lime-500" },
+              { title: "Mobile App Support", icon: mobileAppImg, borderColor: "border-t-rose-500" },
             ].map((feature, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition">
+              <div key={index} className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition border-t-4 ${feature.borderColor}`}>
                 <img src={feature.icon} alt={feature.title} className="w-20 h-20 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">{feature.title}</h3>
                 <p className="text-gray-600">Explore this feature now.</p>

@@ -139,7 +139,6 @@ const ProfileDetails: React.FC = () => {
   };
 
   const onSubmit = async (data: ProfileFormValues) => {
-    debugger;
     setIsLoading(true);
 
     try {

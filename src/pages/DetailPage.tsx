@@ -18,7 +18,7 @@ const UserDetailPage: React.FC = () => {
       try {
         const userDocRef = doc(db, "profiles", id as string);
         const docSnapshot = await getDoc(userDocRef);
-        debugger;
+    
         if (docSnapshot.exists()) {
           setUserData(docSnapshot.data());
         } else {
@@ -33,11 +33,11 @@ const UserDetailPage: React.FC = () => {
     };
 
     const checkFriendshipStatus = async () => {
-      debugger;
+  
       let test = userData;
       if (user?.uid && id) {
         try {
-          debugger;
+         
           const q = query(collection(db, "friendRequests"), where("fromUser", "in", [user.uid, id]), where("toUser", "in", [user.uid, id]));
 
           const querySnapshot = await getDocs(q);
@@ -61,7 +61,7 @@ const UserDetailPage: React.FC = () => {
 
   const sendFriendRequest = async () => {
     if (!user || !id) return;
-    debugger;
+ 
     try {
       await addDoc(collection(db, "friendRequests"), {
         fromUser: user.uid,

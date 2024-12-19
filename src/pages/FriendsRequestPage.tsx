@@ -16,13 +16,13 @@ const FriendsRequestPage: React.FC = () => {
 
   useEffect(() => {
     let test = user;
-    debugger;
+   
     // const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
     //   setUser(currentUser);
     //   setLoading(false);
     //   if (currentUser) {
     if (user) {
-      debugger;
+     
       fetchRequests();
       fetchFriends();
     }
@@ -34,7 +34,7 @@ const FriendsRequestPage: React.FC = () => {
   }, [user]);
 
   const fetchRequests = async () => {
-    debugger;
+ 
     const q = query(collection(db, "friendRequests"), where("toUser", "==", user?.uid), where("status", "==", "pending"));
     const snapshot = await getDocs(q);
     setRequests(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
@@ -83,7 +83,7 @@ const FriendsRequestPage: React.FC = () => {
       alert("You are already friends with this user.");
       return;
     }
-    debugger;
+
     await addDoc(collection(db, "friendRequests"), {
       fromUser,
       toUser,

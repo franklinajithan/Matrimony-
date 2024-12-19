@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaBell, FaUser, FaEnvelope, FaSearch, FaBars, FaTimes } from "react-icons/fa";
+import { FaBell, FaUser, FaEnvelope, FaSearch, FaBars, FaTimes, FaHeart } from "react-icons/fa";
 import { auth } from "../services/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
@@ -37,7 +37,9 @@ const Navbar: React.FC = () => {
         {/* Logo */}
         <div className="text-2xl font-bold text-white">
           <Link to="/dashboard">
-            <span className="text-white">Matrimony</span>
+          <span className="flex items-center text-3xl font-bold text-white">
+                CUPID <FaHeart className="mx-2 text-red-500 text-3xl" /> KNOTS
+              </span>
           </Link>
         </div>
 
