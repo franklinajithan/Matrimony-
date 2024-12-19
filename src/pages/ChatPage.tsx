@@ -25,8 +25,7 @@ const Chat: React.FC = () => {
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<any | null>(null);
-
+  // const [currentUser, setCurrentUser] = useState<any | null>(null);
 
   // Request notification permission when the component mounts
   useEffect(() => {
@@ -41,51 +40,63 @@ const Chat: React.FC = () => {
   };
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user:any) => {
-      if (user) {
-
-        setCurrentUser(user)
-        setCurrentUserId(user.email); // Set current user ID when authenticated
-      } else {
-        setCurrentUserId(null); // Clear current user ID when not authenticated
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user?.uid) {
+        setCurrentUserId(user.uid);
+        fetchFriends(user);
       }
     });
 
-    return () => unsubscribeAuth();
-  }, [auth]);
-
-  // Fetch user profiles
-  useEffect(() => {
-    const currentUserEmail = "franklin.ajithan@gmail.com"; // Replace with the current user's email
-    const friendsRef = collection(db, "friends"); // Reference the 'friends' collection
-  
-    const unsubscribe = onSnapshot(friendsRef, (snapshot) => {
-      const friendsList: any = snapshot.docs
-        .map((doc:any) => {
-          const friendData = doc.data(); // Get document data
-          return {
-            id: doc.id, // Firestore document ID
-            ...friendData, // Spread all other fields (user1, user2)
-          };
-        })
-        .filter(
-          (friend) =>
-            friend.user1 === currentUserEmail || friend.user2 === currentUserEmail
-        ); // Filter to include only friends matching the current user's email
-  
-      setUsers(friendsList); // Assuming you're using setUsers for state
-    });
-  
     return () => unsubscribe();
   }, []);
 
+  // Fetch user profiles
+  const fetchFriends = async (user: any) => {
+    try {
+      // Queries to find friends where the user is either user1 or user2
+      const q1 = query(collection(db, "friends"), where("user1", "==", user?.uid));
+      const q2 = query(collection(db, "friends"), where("user2", "==", user?.uid));
+
+      // Get snapshots of the queries
+      const [snapshot1, snapshot2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+      // Extract friend IDs from both queries
+      const friendIds = [...snapshot1.docs.map((doc) => doc.data().user2), ...snapshot2.docs.map((doc) => doc.data().user1)];
+
+      // Remove duplicates and fetch profiles from the `profiles` collection
+      const uniqueFriendIds = Array.from(new Set(friendIds));
+      const userPromises = uniqueFriendIds.map((id) => getDocs(query(collection(db, "profiles"), where("__name__", "==", id))));
+
+      // Resolve all user profile queries
+      const userSnapshots = await Promise.all(userPromises);
+
+      // Map data to the User interface and include the document ID
+      const friends: any = userSnapshots
+        .map((snap, index) => {
+          const doc = snap.docs[0];
+          if (doc) {
+            return {
+              id: doc.id, // Bind the document ID
+              ...doc.data(),
+            } as User;
+          }
+          return null;
+        })
+        .filter(Boolean); // Filter out null values
+
+      setUsers(friends);
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+    }
+  };
+
   // Real-time listener for messages
   useEffect(() => {
-    if (!selectedUser || !currentUser) return;
+    if (!selectedUser || !currentUserId) return;
 
     const messagesRef = collection(db, "messages");
 
-    const q = query(messagesRef, where("fromUserId", "in", [currentUser.email, selectedUser.id]), where("toUserId", "in", [currentUser.email, selectedUser.id]), orderBy("timestamp", "asc"));
+    const q = query(messagesRef, where("fromUserId", "in", [currentUserId, selectedUser.id]), where("toUserId", "in", [currentUserId, selectedUser.id]), orderBy("timestamp", "asc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const messagesList: Message[] = snapshot.docs.map((doc) => ({
@@ -97,7 +108,7 @@ const Chat: React.FC = () => {
       const latestMessage = snapshot.docChanges().find((change) => change.type === "added");
       if (latestMessage) {
         const newMessage = latestMessage.doc.data() as Message;
-        if (newMessage.fromUserId !== currentUser.email) {
+        if (newMessage.fromUserId !== currentUserId) {
           triggerNotification(newMessage.text);
         }
       }
@@ -107,16 +118,16 @@ const Chat: React.FC = () => {
     });
 
     return () => unsubscribe();
-  }, [selectedUser, currentUser]);
+  }, [selectedUser, currentUserId]);
 
   // Send message
   const sendMessage = async () => {
-    if (!messageText.trim() || !selectedUser || !currentUser) return;
+    if (!messageText.trim() || !selectedUser || !currentUserId) return;
 
     const messagesRef = collection(db, "messages");
     await addDoc(messagesRef, {
       text: messageText,
-      fromUserId: currentUser.email,
+      fromUserId: currentUserId,
       toUserId: selectedUser.id,
       timestamp: serverTimestamp(),
     });
@@ -136,11 +147,11 @@ const Chat: React.FC = () => {
 
   // Function to delete chat history with a specific user
   const deleteChatHistory = async (userId: string) => {
-    if (!currentUser) return;
+    if (!currentUserId) return;
 
     try {
       const messagesRef = collection(db, "messages");
-      const q = query(messagesRef, where("fromUserId", "in", [currentUser.email, userId]), where("toUserId", "in", [currentUser.email, userId]));
+      const q = query(messagesRef, where("fromUserId", "in", [currentUserId, userId]), where("toUserId", "in", [currentUserId, userId]));
 
       // Get all messages that match the query
       const snapshot = await getDocs(q);
@@ -162,15 +173,18 @@ const Chat: React.FC = () => {
       {/* Sidebar for users */}
       <div className="w-1/3 bg-gray-100 border-r overflow-y-auto">
         <h2 className="text-lg font-semibold p-4">Chats</h2>
-        {users.map((user) => (
+        {users.map((user:any) => (
           <div
             key={user.id}
             className={`p-4 flex items-center justify-between cursor-pointer hover:bg-gray-200 ${selectedUser?.id === user.id ? "bg-gray-300" : ""}`}
-            onClick={() => setSelectedUser(user)}
+            onClick={() => {
+              debugger;
+              return setSelectedUser(user);
+            }}
           >
             {/* User Info */}
             <div className="flex items-center">
-              <img src={user.profilePicture || "https://via.placeholder.com/40"} alt={user.fullName} className="w-10 h-10 rounded-full mr-4" />
+              <img src={user.profilePicture} alt={user.fullName} className="w-10 h-10 rounded-full mr-4" />
               <span className="text-gray-700">{user.fullName}</span>
             </div>
 
@@ -202,8 +216,8 @@ const Chat: React.FC = () => {
             {/* Messages */}
             <div className="flex-1 p-4 overflow-y-auto bg-white space-y-2">
               {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.fromUserId === currentUser?.email ? "justify-end" : "justify-start"}`}>
-                  <div className={`p-2 rounded-lg max-w-xs ${msg.fromUserId === currentUser?.email ? "bg-blue-500 text-white" : "bg-gray-200 text-black"}`}>{msg.text}</div>
+                <div key={msg.id} className={`flex ${msg.fromUserId === currentUserId ? "justify-end" : "justify-start"}`}>
+                  <div className={`p-2 rounded-lg max-w-xs ${msg.fromUserId === currentUserId ? "bg-blue-500 text-white" : "bg-gray-200 text-black"}`}>{msg.text}</div>
                 </div>
               ))}
               <div ref={messagesEndRef} />

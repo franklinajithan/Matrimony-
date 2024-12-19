@@ -35,10 +35,10 @@ const UserDetailPage: React.FC = () => {
     const checkFriendshipStatus = async () => {
       debugger;
       let test = userData;
-      if (user?.email && userData?.email) {
+      if (user?.uid && id) {
         try {
           debugger;
-          const q = query(collection(db, "friendRequests"), where("fromUser", "in", [user.email, userData?.email]), where("toUser", "in", [user.email, userData?.email]));
+          const q = query(collection(db, "friendRequests"), where("fromUser", "in", [user.uid, id]), where("toUser", "in", [user.uid, id]));
 
           const querySnapshot = await getDocs(q);
           if (!querySnapshot.empty) {
@@ -57,15 +57,15 @@ const UserDetailPage: React.FC = () => {
 
     fetchUserData();
     checkFriendshipStatus();
-  }, [user?.email, userData?.email]);
+  }, [user?.uid, id]);
 
   const sendFriendRequest = async () => {
-    if (!user || !userData?.email) return;
-
+    if (!user || !id) return;
+    debugger;
     try {
       await addDoc(collection(db, "friendRequests"), {
-        fromUser: user.email,
-        toUser: userData.email,
+        fromUser: user.uid,
+        toUser: id,
         status: "pending",
       });
       setFriendshipStatus("sent");
@@ -119,26 +119,24 @@ const UserDetailPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-800 mb-4">{userData?.fullName || "Name Not Provided"}</h1>
           <p className="text-gray-600 mb-6">{userData?.occupation || "Occupation Not Provided"}</p>
 
-          {/* Friend Request Button */}
-          {user?.email !== userData?.email && (
-            <>
-              {friendshipStatus === "none" && (
-                <button onClick={sendFriendRequest} className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white">
-                  Send Friend Request
-                </button>
-              )}
-              {friendshipStatus === "sent" && (
-                <button disabled className="px-4 py-2 rounded bg-gray-400 text-white cursor-not-allowed">
-                  Request Sent
-                </button>
-              )}
-              {friendshipStatus === "friends" && (
-                <button disabled className="px-4 py-2 rounded bg-green-500 text-white cursor-not-allowed">
-                  Friends
-                </button>
-              )}
-            </>
-          )}
+          <>
+            {friendshipStatus === "none" && (
+              <button onClick={sendFriendRequest} className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white">
+                Send Friend Request
+              </button>
+            )}
+            {friendshipStatus === "sent" && (
+              <button disabled className="px-4 py-2 rounded bg-gray-400 text-white cursor-not-allowed">
+                Request Sent
+              </button>
+            )}
+            {friendshipStatus === "friends" && (
+              <button disabled className="px-4 py-2 rounded bg-green-500 text-white cursor-not-allowed">
+                Friends
+              </button>
+            )}
+          </>
+
           {/* Basic Information */}
           {renderSection("Personal Information", {
             gender: userData?.gender,

@@ -22,6 +22,7 @@ const FriendsRequestPage: React.FC = () => {
     //   setLoading(false);
     //   if (currentUser) {
     if (user) {
+      debugger;
       fetchRequests();
       fetchFriends();
     }
@@ -34,14 +35,14 @@ const FriendsRequestPage: React.FC = () => {
 
   const fetchRequests = async () => {
     debugger;
-    const q = query(collection(db, "friendRequests"), where("toUser", "==", user?.email), where("status", "==", "pending"));
+    const q = query(collection(db, "friendRequests"), where("toUser", "==", user?.uid), where("status", "==", "pending"));
     const snapshot = await getDocs(q);
     setRequests(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
   };
 
   const fetchFriends = async () => {
-    const q1 = query(collection(db, "friends"), where("user1", "==", user?.email));
-    const q2 = query(collection(db, "friends"), where("user2", "==", user?.email));
+    const q1 = query(collection(db, "friends"), where("user1", "==", user?.uid));
+    const q2 = query(collection(db, "friends"), where("user2", "==", user?.uid));
 
     const [snapshot1, snapshot2] = await Promise.all([getDocs(q1), getDocs(q2)]);
 
@@ -60,7 +61,7 @@ const FriendsRequestPage: React.FC = () => {
     });
 
     // Check pending requests
-    const q = query(collection(db, "friendRequests"), where("fromUser", "==", currentUser.email));
+    const q = query(collection(db, "friendRequests"), where("fromUser", "==", currentUser.uid));
     const snapshot = await getDocs(q);
 
     snapshot.docs.forEach((doc) => {
@@ -128,27 +129,27 @@ const FriendsRequestPage: React.FC = () => {
     fetchRequests();
   };
 
-  const renderButton = (email: string) => {
-    if (friendshipStatus[email] === "friends") {
-      return (
-        <button disabled className="px-4 py-1 bg-green-500 text-white rounded">
-          Friends
-        </button>
-      );
-    }
-    if (friendshipStatus[email] === "sent") {
-      return (
-        <button disabled className="px-4 py-1 bg-gray-400 text-white rounded">
-          Request Sent
-        </button>
-      );
-    }
-    return (
-      <button onClick={() => sendFriendRequest(user.email, email)} className="px-4 py-1 bg-blue-500 text-white rounded">
-        Send Friend Request
-      </button>
-    );
-  };
+  // const renderButton = (email: string) => {
+  //   if (friendshipStatus[email] === "friends") {
+  //     return (
+  //       <button disabled className="px-4 py-1 bg-green-500 text-white rounded">
+  //         Friends
+  //       </button>
+  //     );
+  //   }
+  //   if (friendshipStatus[email] === "sent") {
+  //     return (
+  //       <button disabled className="px-4 py-1 bg-gray-400 text-white rounded">
+  //         Request Sent
+  //       </button>
+  //     );
+  //   }
+  //   return (
+  //     <button onClick={() => sendFriendRequest(user.email, email)} className="px-4 py-1 bg-blue-500 text-white rounded">
+  //       Send Friend Request
+  //     </button>
+  //   );
+  // };
 
   return (
     <div className="p-4">
@@ -181,16 +182,16 @@ const FriendsRequestPage: React.FC = () => {
         ))}
       </ul>
 
-      <h2 className="text-xl font-bold mt-6 mb-4">Other Users</h2>
+      {/* <h2 className="text-xl font-bold mt-6 mb-4">Other Users</h2>
       <div>
-        {/* Example: Replace with real user emails */}
+        
         {["user1@example.com", "user2@example.com", "user3@example.com"].map((email) => (
           <div key={email} className="flex justify-between items-center bg-gray-100 p-2 rounded mb-2">
             <span>{email}</span>
             {renderButton(email)}
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };
