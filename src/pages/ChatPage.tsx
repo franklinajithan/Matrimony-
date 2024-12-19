@@ -43,7 +43,7 @@ const Chat: React.FC = () => {
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user:any) => {
       if (user) {
-        debugger
+
         setCurrentUser(user)
         setCurrentUserId(user.email); // Set current user ID when authenticated
       } else {
@@ -56,20 +56,28 @@ const Chat: React.FC = () => {
 
   // Fetch user profiles
   useEffect(() => {
-    const usersRef = collection(db, "profiles");
-    const unsubscribe = onSnapshot(usersRef, (snapshot) => {
-      const usersList: any = snapshot.docs.map((doc) => {
-        const { id: _, ...userData } = doc.data(); // Exclude 'id' key if it exists
-        return {
-          id: doc.id, // Explicitly set Firestore document ID
-          ...userData, // Spread remaining data
-        };
-      }).filter((user) => user.id !== currentUserId);;
-
-      setUsers(usersList);
+    const currentUserEmail = "franklin.ajithan@gmail.com"; // Replace with the current user's email
+    const friendsRef = collection(db, "friends"); // Reference the 'friends' collection
+  
+    const unsubscribe = onSnapshot(friendsRef, (snapshot) => {
+      const friendsList: any = snapshot.docs
+        .map((doc:any) => {
+          const friendData = doc.data(); // Get document data
+          return {
+            id: doc.id, // Firestore document ID
+            ...friendData, // Spread all other fields (user1, user2)
+          };
+        })
+        .filter(
+          (friend) =>
+            friend.user1 === currentUserEmail || friend.user2 === currentUserEmail
+        ); // Filter to include only friends matching the current user's email
+  
+      setUsers(friendsList); // Assuming you're using setUsers for state
     });
+  
     return () => unsubscribe();
-  }, [currentUserId]);
+  }, []);
 
   // Real-time listener for messages
   useEffect(() => {

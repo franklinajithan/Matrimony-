@@ -10,7 +10,7 @@ const UserDetailPage: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
-  const [requestSent, setRequestSent] = useState<boolean>(false);
+  const [friendshipStatus, setFriendshipStatus] = useState<string>("none"); // "none", "sent", "friends"
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -18,7 +18,7 @@ const UserDetailPage: React.FC = () => {
       try {
         const userDocRef = doc(db, "profiles", id as string);
         const docSnapshot = await getDoc(userDocRef);
-
+        debugger;
         if (docSnapshot.exists()) {
           setUserData(docSnapshot.data());
         } else {
@@ -32,44 +32,49 @@ const UserDetailPage: React.FC = () => {
       }
     };
 
-    fetchUserData();
-  }, [id]);
+    const checkFriendshipStatus = async () => {
+      debugger;
+      let test = userData;
+      if (user?.email && userData?.email) {
+        try {
+          debugger;
+          const q = query(collection(db, "friendRequests"), where("fromUser", "in", [user.email, userData?.email]), where("toUser", "in", [user.email, userData?.email]));
 
-    // Function to check if request already exists
-    const checkExistingRequest = async () => {
-      const q = query(
-        collection(db, "friendRequests"),
-        where("fromUser", "==", user.email),
-        where("toUser", "==", userData?.email)
-      );
-  
-      const querySnapshot = await getDocs(q);
-      return !querySnapshot.empty;
-    };
-  
-    // Send Friend Request Function
-    const sendFriendRequest = async () => {
-      if (!user || !userData?.email) return;
-  
-      const alreadyExists = await checkExistingRequest();
-      if (alreadyExists) {
-        alert("Friend request already sent.");
-        return;
-      }
-  
-      try {
-        await addDoc(collection(db, "friendRequests"), {
-          fromUser: user.email,
-          toUser: userData.email,
-          status: "pending",
-        });
-        setRequestSent(true);
-        alert("Friend request sent successfully!");
-      } catch (err) {
-        console.error("Error sending friend request:", err);
-        alert("Failed to send friend request. Try again later.");
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            const request = querySnapshot.docs[0].data();
+            if (request.status === "accepted") {
+              setFriendshipStatus("friends");
+            } else if (request.status === "pending") {
+              setFriendshipStatus("sent");
+            }
+          }
+        } catch (err) {
+          console.error("Error checking friendship status:", err);
+        }
       }
     };
+
+    fetchUserData();
+    checkFriendshipStatus();
+  }, [user?.email, userData?.email]);
+
+  const sendFriendRequest = async () => {
+    if (!user || !userData?.email) return;
+
+    try {
+      await addDoc(collection(db, "friendRequests"), {
+        fromUser: user.email,
+        toUser: userData.email,
+        status: "pending",
+      });
+      setFriendshipStatus("sent");
+      alert("Friend request sent successfully!");
+    } catch (err) {
+      console.error("Error sending friend request:", err);
+      alert("Failed to send friend request. Try again later.");
+    }
+  };
 
   if (loading) {
     return (
@@ -86,7 +91,6 @@ const UserDetailPage: React.FC = () => {
       </div>
     );
   }
-
   const renderSection = (title: string, data: any) => (
     <div className="mb-6">
       <h3 className="text-lg font-bold text-gray-800 mb-2">{title}</h3>
@@ -99,7 +103,6 @@ const UserDetailPage: React.FC = () => {
       </div>
     </div>
   );
-  // Test
   return (
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -118,15 +121,24 @@ const UserDetailPage: React.FC = () => {
 
           {/* Friend Request Button */}
           {user?.email !== userData?.email && (
-            <button
-              onClick={sendFriendRequest}
-              className={`px-4 py-2 rounded ${requestSent ? "bg-gray-400 text-white cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"}`}
-              disabled={requestSent}
-            >
-              {requestSent ? "Request Sent" : "Send Friend Request"}
-            </button>
+            <>
+              {friendshipStatus === "none" && (
+                <button onClick={sendFriendRequest} className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white">
+                  Send Friend Request
+                </button>
+              )}
+              {friendshipStatus === "sent" && (
+                <button disabled className="px-4 py-2 rounded bg-gray-400 text-white cursor-not-allowed">
+                  Request Sent
+                </button>
+              )}
+              {friendshipStatus === "friends" && (
+                <button disabled className="px-4 py-2 rounded bg-green-500 text-white cursor-not-allowed">
+                  Friends
+                </button>
+              )}
+            </>
           )}
-
           {/* Basic Information */}
           {renderSection("Personal Information", {
             gender: userData?.gender,

@@ -1,93 +1,170 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, query, where, doc, deleteDoc } from "firebase/firestore";
-
-import { db } from "../services/firebase";
-import { UserContext } from "../context/UserContext";
-
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "../services/firebase";
-
-
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../services/firebase";
+import { useUser } from "../context/UserContext";
 const FriendsRequestPage: React.FC = () => {
- // const { user } = useContext(UserContext); // Get logged-in user
-
-
   const [requests, setRequests] = useState<any[]>([]);
   const [friends, setFriends] = useState<any[]>([]);
-  const [user, setUser] = useState<any | null>(null);
+  //  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const { user } = useUser();
+
+  const [friendshipStatus, setFriendshipStatus] = useState<{
+    [email: string]: "none" | "sent" | "friends";
+  }>({});
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      debugger
-      setUser(currentUser);
-      setLoading(false);
-      fetchRequests(currentUser);
-      fetchFriends(currentUser);
-    });
+    let test = user;
+    debugger;
+    // const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    //   setUser(currentUser);
+    //   setLoading(false);
+    //   if (currentUser) {
+    if (user) {
+      fetchRequests();
+      fetchFriends();
+    }
 
-    return () => unsubscribe(); // Cleanup the listener
-  }, []);
+    //   }
+    // });
 
-  // Fetch friend requests
-  const fetchRequests = async (currentUser:any) => {
-    const q = query(collection(db, "friendRequests"), where("toUser", "==", currentUser.email));
+    // return () => unsubscribe(); // Cleanup the listener
+  }, [user]);
+
+  const fetchRequests = async () => {
+    debugger;
+    const q = query(collection(db, "friendRequests"), where("toUser", "==", user?.email), where("status", "==", "pending"));
     const snapshot = await getDocs(q);
-    setRequests(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    setRequests(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
   };
 
-  // Fetch accepted friends
-  const fetchFriends = async (currentUser:any) => {
-    const q = query(collection(db, "friends"), where("user1", "==", currentUser.email));
+  const fetchFriends = async () => {
+    const q1 = query(collection(db, "friends"), where("user1", "==", user?.email));
+    const q2 = query(collection(db, "friends"), where("user2", "==", user?.email));
+
+    const [snapshot1, snapshot2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+    const friendsList = [...snapshot1.docs.map((doc) => doc.data().user2), ...snapshot2.docs.map((doc) => doc.data().user1)];
+
+    setFriends(friendsList);
+    updateFriendshipStatus(friendsList, user);
+  };
+
+  const updateFriendshipStatus = async (friendsList: string[], currentUser: any) => {
+    const status: { [email: string]: "none" | "sent" | "friends" } = {};
+
+    // Mark existing friends
+    friendsList.forEach((friend) => {
+      status[friend] = "friends";
+    });
+
+    // Check pending requests
+    const q = query(collection(db, "friendRequests"), where("fromUser", "==", currentUser.email));
     const snapshot = await getDocs(q);
-    setFriends(snapshot.docs.map(doc => doc.data()));
+
+    snapshot.docs.forEach((doc) => {
+      const data = doc.data();
+      if (data.toUser) {
+        status[data.toUser] = "sent";
+      }
+    });
+
+    setFriendshipStatus(status);
+  };
+
+  const sendFriendRequest = async (fromUser: string, toUser: string) => {
+    if (friendshipStatus[toUser] === "sent") {
+      alert("You have already sent a friend request to this user.");
+      return;
+    }
+    if (friendshipStatus[toUser] === "friends") {
+      alert("You are already friends with this user.");
+      return;
+    }
+    debugger;
+    await addDoc(collection(db, "friendRequests"), {
+      fromUser,
+      toUser,
+      status: "pending",
+      timestamp: new Date(),
+    });
+
+    alert("Friend request sent successfully!");
+    setFriendshipStatus((prev) => ({ ...prev, [toUser]: "sent" }));
   };
 
   const handleAction = async (requestId: string, action: "accept" | "reject" | "block") => {
     const requestRef = doc(db, "friendRequests", requestId);
 
     if (action === "accept") {
-      const request = requests.find(r => r.id === requestId);
-      await addDoc(collection(db, "friends"), { user1: request.fromUser, user2: request.toUser });
+      const request = requests.find((r) => r.id === requestId);
+
+      // Add to friends list
+      if (request && !friends.includes(request.fromUser)) {
+        await addDoc(collection(db, "friends"), {
+          user1: request.fromUser,
+          user2: request.toUser,
+        });
+        await addDoc(collection(db, "friendRequests"), {
+          fromUser: request.fromUser,
+          toUser: request.toUser,
+          status: "accepted",
+        });
+        setFriends((prev) => [...prev, request.fromUser]);
+        setFriendshipStatus((prev) => ({
+          ...prev,
+          [request.fromUser]: "friends",
+        }));
+      }
+
+      await deleteDoc(requestRef); // Remove request after acceptance
     }
 
     if (action === "block" || action === "reject") {
       await deleteDoc(requestRef); // Remove request
-    } else {
-      await updateDoc(requestRef, { status: action });
     }
 
-    fetchRequests(user);
-    fetchFriends(user);
+    fetchRequests();
   };
 
-  useEffect(() => {
-   
-  }, []);
+  const renderButton = (email: string) => {
+    if (friendshipStatus[email] === "friends") {
+      return (
+        <button disabled className="px-4 py-1 bg-green-500 text-white rounded">
+          Friends
+        </button>
+      );
+    }
+    if (friendshipStatus[email] === "sent") {
+      return (
+        <button disabled className="px-4 py-1 bg-gray-400 text-white rounded">
+          Request Sent
+        </button>
+      );
+    }
+    return (
+      <button onClick={() => sendFriendRequest(user.email, email)} className="px-4 py-1 bg-blue-500 text-white rounded">
+        Send Friend Request
+      </button>
+    );
+  };
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Friend Requests</h1>
       <div>
-        {requests.map(request => (
+        {requests.map((request) => (
           <div key={request.id} className="flex justify-between items-center bg-gray-100 p-2 rounded mb-2">
             <span>{request.fromUser}</span>
             <div className="space-x-2">
-              <button
-                onClick={() => handleAction(request.id, "accept")}
-                className="px-4 py-1 bg-green-500 text-white rounded"
-              >
+              <button onClick={() => handleAction(request.id, "accept")} className="px-4 py-1 bg-green-500 text-white rounded">
                 Accept
               </button>
-              <button
-                onClick={() => handleAction(request.id, "reject")}
-                className="px-4 py-1 bg-yellow-500 text-white rounded"
-              >
+              <button onClick={() => handleAction(request.id, "reject")} className="px-4 py-1 bg-yellow-500 text-white rounded">
                 Reject
               </button>
-              <button
-                onClick={() => handleAction(request.id, "block")}
-                className="px-4 py-1 bg-red-500 text-white rounded"
-              >
+              <button onClick={() => handleAction(request.id, "block")} className="px-4 py-1 bg-red-500 text-white rounded">
                 Block
               </button>
             </div>
@@ -97,12 +174,23 @@ const FriendsRequestPage: React.FC = () => {
 
       <h2 className="text-xl font-bold mt-6 mb-4">Your Friends</h2>
       <ul>
-        {friends.map(friend => (
-          <li key={friend.id} className="bg-gray-200 p-2 rounded mb-2">
-            {friend.user2}
+        {friends.map((friend, index) => (
+          <li key={index} className="bg-gray-200 p-2 rounded mb-2">
+            {friend}
           </li>
         ))}
       </ul>
+
+      <h2 className="text-xl font-bold mt-6 mb-4">Other Users</h2>
+      <div>
+        {/* Example: Replace with real user emails */}
+        {["user1@example.com", "user2@example.com", "user3@example.com"].map((email) => (
+          <div key={email} className="flex justify-between items-center bg-gray-100 p-2 rounded mb-2">
+            <span>{email}</span>
+            {renderButton(email)}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
