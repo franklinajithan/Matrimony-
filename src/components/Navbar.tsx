@@ -55,6 +55,10 @@ const Navbar: React.FC = () => {
           <Link to="/payments" className="hover:text-gray-200 text-white">
             Price
           </Link>
+          <Link to="/friends" className="hover:text-gray-200 text-white">
+            Friends
+          </Link>
+
           <Link to="/userList" className="hover:text-gray-200 text-white">
             Find Your Match
           </Link>

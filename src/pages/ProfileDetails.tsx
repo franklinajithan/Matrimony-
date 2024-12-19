@@ -17,42 +17,42 @@ const profileSchema = z.object({
   profilePicture: z.any().optional(),
   additionalImages: z.array(z.any()).optional(),
   gender: z.string().nonempty("Gender is required"),
-  dateOfBirth: z.string().nonempty("Date of birth is required"),
+  // dateOfBirth: z.string().nonempty("Date of birth is required"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  religion: z.string().nonempty("Religion is required"),
-  caste: z.string().optional(),
-  subCaste: z.string().optional(),
-  maritalStatus: z.string().nonempty("Marital status is required"),
+  // religion: z.string().nonempty("Religion is required"),
+  // caste: z.string().optional(),
+  // subCaste: z.string().optional(),
+  // maritalStatus: z.string().nonempty("Marital status is required"),
   education: z.string().nonempty("Education is required"),
-  occupation: z.string().nonempty("Occupation is required"),
-  income: z.string().optional(),
-  address: z.string().optional(),
-  citizenship: z.string().nonempty("Citizenship is required"),
-  country: z.string().nonempty("Country is required"),
-  state: z.string().nonempty("State is required"),
-  city: z.string().nonempty("City is required"),
-  height: z.string().nonempty("Height is required"),
-  weight: z.string().optional(),
-  bloodGroup: z.string().optional(),
-  complexion: z.string().nonempty("Complexion is required"),
-  physicalStatus: z.string().nonempty("Physical status is required"),
-  familyType: z.string().nonempty("Family type is required"),
-  familyStatus: z.string().nonempty("Family status is required"),
-  fatherOccupation: z.string().optional(),
-  motherOccupation: z.string().optional(),
-  siblings: z.string().optional(),
-  foodPreference: z.string().nonempty("Food preference is required"),
-  drinking: z.string().nonempty("Drinking preference is required"),
-  smoking: z.string().nonempty("Smoking preference is required"),
-  expectations: z.string().optional(),
-  horoscope: z.string().optional(),
-  manglik: z.string().nonempty("Manglik status is required"),
-  star: z.string().optional(),
-  rashi: z.string().optional(),
-  gothra: z.string().optional(),
-  motherTongue: z.string().nonempty("Mother tongue is required"),
-  hobbies: z.string().optional(),
+  // occupation: z.string().nonempty("Occupation is required"),
+  // income: z.string().optional(),
+  // address: z.string().optional(),
+  // citizenship: z.string().nonempty("Citizenship is required"),
+  // country: z.string().nonempty("Country is required"),
+  // state: z.string().nonempty("State is required"),
+  // city: z.string().nonempty("City is required"),
+  // height: z.string().nonempty("Height is required"),
+  // weight: z.string().optional(),
+  // bloodGroup: z.string().optional(),
+  // complexion: z.string().nonempty("Complexion is required"),
+  // physicalStatus: z.string().nonempty("Physical status is required"),
+  // familyType: z.string().nonempty("Family type is required"),
+  // familyStatus: z.string().nonempty("Family status is required"),
+  // fatherOccupation: z.string().optional(),
+  // motherOccupation: z.string().optional(),
+  // siblings: z.string().optional(),
+  // foodPreference: z.string().nonempty("Food preference is required"),
+  //  drinking: z.string().nonempty("Drinking preference is required"),
+  // smoking: z.string().nonempty("Smoking preference is required"),
+  // expectations: z.string().optional(),
+  // horoscope: z.string().optional(),
+  // manglik: z.string().nonempty("Manglik status is required"),
+  // star: z.string().optional(),
+  // rashi: z.string().optional(),
+  // gothra: z.string().optional(),
+  // motherTongue: z.string().nonempty("Mother tongue is required"),
+  //  hobbies: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -70,73 +70,66 @@ const ProfileDetails: React.FC = () => {
       gender: "",
       profilePicture: "",
       additionalImages: [],
-      dateOfBirth: "",
+      //dateOfBirth: "",
       email: "",
       phone: "",
-      religion: "",
-      caste: "",
-      subCaste: "",
-      maritalStatus: "",
+      //  religion: "",
+      //   caste: "",
+      //   subCaste: "",
+      //   maritalStatus: "",
       education: "",
-      occupation: "",
-      income: "",
-      address: "",
-      citizenship: "",
-      country: "",
-      state: "",
-      city: "",
-      height: "",
-      weight: "",
-      bloodGroup: "",
-      complexion: "",
-      physicalStatus: "",
-      familyType: "",
-      familyStatus: "",
-      fatherOccupation: "",
-      motherOccupation: "",
-      siblings: "",
-      foodPreference: "",
-      drinking: "",
-      smoking: "",
-      expectations: "",
-      horoscope: "",
-      manglik: "",
-      star: "",
-      rashi: "",
-      gothra: "",
-      motherTongue: "",
-      hobbies: "",
+      //  occupation: "",
+      //  income: "",
+      // address: "",
+      // citizenship: "",
+      // country: "",
+      // state: "",
+      // city: "",
+      // height: "",
+      // weight: "",
+      // bloodGroup: "",
+      // complexion: "",
+      // physicalStatus: "",
+      // familyType: "",
+      // familyStatus: "",
+      // fatherOccupation: "",
+      // motherOccupation: "",
+      // siblings: "",
+      // foodPreference: "",
+      // drinking: "",
+      // smoking: "",
+      // expectations: "",
+      // horoscope: "",
+      // manglik: "",
+      // star: "",
+      // rashi: "",
+      // gothra: "",
+      // motherTongue: "",
+      // hobbies: "",
     },
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user?.email) {
+    const unsubscribe = onAuthStateChanged(auth, (user: any) => {
+      if (user?.uid) {
         setUserEmail(user.email);
-        fetchProfile(user.email);
+        fetchProfile(user.uid);
+        form.setValue("email", user?.email);
       }
     });
 
     return () => unsubscribe();
   }, []);
 
-  const fetchProfile = async (email: string) => {
+  const fetchProfile = async (uid: string) => {
     try {
-      const profileRef = doc(db, "profiles", email);
+      const profileRef = doc(db, "profiles", uid);
       const profileSnap = await getDoc(profileRef);
 
       if (profileSnap.exists()) {
         const profileData = profileSnap.data() as ProfileFormValues;
-
-        // Update form with fetched data
         form.reset(profileData);
-     
-        // Set profile data for rendering
-        setProfileData((prev) => ({
-          ...prev,
-          profilePicture: profileData.profilePicture || null,
-          additionalImages: profileData.additionalImages || [],
-        }));
+        setProfileData(profileData);
       } else {
         console.log("No such document!");
       }
@@ -145,45 +138,35 @@ const ProfileDetails: React.FC = () => {
     }
   };
 
-  const uploadImage = async (file: File) => {
-    try {
-      const storageRef = ref(storage, `profiles/${userEmail}/${file.name}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-      return downloadURL;
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      throw error;
-    }
-  };
-
   const onSubmit = async (data: ProfileFormValues) => {
-
+    debugger;
     setIsLoading(true);
+
     try {
-      if (!userEmail) throw new Error("User not authenticated");
+      const user = auth.currentUser;
+      if (!user?.uid || !user.email) throw new Error("User not authenticated");
+
+      const uid = user.uid;
 
       // Step 1: Upload profile picture if it's a file
       let profilePictureURL = data.profilePicture;
       if (data.profilePicture instanceof File) {
-        const profilePictureRef = ref(storage, `profiles/${userEmail}/profilePicture/${data.profilePicture.name}`);
-        await uploadBytes(profilePictureRef, data.profilePicture);
-        profilePictureURL = await getDownloadURL(profilePictureRef);
+        profilePictureURL = await uploadImage(data.profilePicture, `profiles/${uid}/profilePicture/${data.profilePicture.name}`);
       }
 
       // Step 2: Upload additional images
-      const additionalFiles = data.additionalImages || [];
-      //const additionalImageURLs = await uploadAdditionalImages(additionalFiles as File[]);
-  
+      const additionalFiles = (data.additionalImages || []) as File[];
+      const additionalImageURLs = await uploadAdditionalImages(additionalFiles, uid);
+
       // Step 3: Prepare the final profile data
       const profileData = {
         ...data,
         profilePicture: profilePictureURL,
-        additionalImages: additionalFiles, // Ensure these URLs are stored properly
+        additionalImages: additionalImageURLs,
       };
- 
+
       // Step 4: Save the profile data to Firestore
-      const profileRef = doc(db, "profiles", userEmail);
+      const profileRef = doc(db, "profiles", uid);
       await setDoc(profileRef, profileData);
 
       alert("Profile details saved successfully!");
@@ -195,19 +178,25 @@ const ProfileDetails: React.FC = () => {
     }
   };
 
-  const uploadAdditionalImages = async (files: File[]) => {
+  // Helper function to upload a single image
+  const uploadImage = async (file: File, path: string): Promise<string> => {
     try {
-      const urls = await Promise.all(
-        files.map(async (file) => {
-          const storageRef = ref(storage, `profiles/${userEmail}/additional/${file.name}`);
-          await uploadBytes(storageRef, file);
-          return await getDownloadURL(storageRef);
-        })
-      );
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, file);
+      return await getDownloadURL(storageRef);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw new Error("Failed to upload image");
+    }
+  };
+
+  // Helper function to upload multiple images
+  const uploadAdditionalImages = async (files: File[], uid: string): Promise<string[]> => {
+    try {
+      const urls = await Promise.all(files.map((file) => uploadImage(file, `profiles/${uid}/additionalImages/${file.name}`)));
       return urls;
     } catch (error) {
       console.error("Error uploading additional images:", error);
-      alert("Failed to upload images. Please try again.");
       return [];
     }
   };
@@ -279,7 +268,7 @@ const ProfileDetails: React.FC = () => {
             <div>
               <label className="block font-medium text-gray-800 mb-2">Additional Images</label>
               <div className="flex flex-wrap gap-2">
-                {profileData?.additionalImages?.map((url:any, index:any) => (
+                {profileData?.additionalImages?.map((url: any, index: any) => (
                   <div key={index} className="relative group w-16 h-16 rounded-md overflow-hidden border border-gray-300 shadow-sm">
                     <img src={url} alt={`Additional ${index}`} className="object-cover w-full h-full" />
                     <button type="button" className="absolute top-0 right-0 bg-red-600 text-white text-xs p-1 rounded-full opacity-0 group-hover:opacity-100" onClick={() => handleDeleteImage(index)}>
@@ -295,12 +284,20 @@ const ProfileDetails: React.FC = () => {
                     onChange={async (e) => {
                       const files = e.target.files ? Array.from(e.target.files) : [];
                       if (files.length) {
-                        const uploadedUrls = await uploadAdditionalImages(files);
-                        form.setValue("additionalImages", [...(form.getValues("additionalImages") || []), ...uploadedUrls]);
-                        setProfileData((prev) => ({
-                          ...prev,
-                          additionalImages: [...(prev?.additionalImages || []), ...uploadedUrls],
-                        }));
+                        try {
+                          const user = auth.currentUser;
+                          if (!user?.uid) throw new Error("User not authenticated");
+
+                          const uploadedUrls = await uploadAdditionalImages(files, user.uid);
+                          form.setValue("additionalImages", [...(form.getValues("additionalImages") || []), ...uploadedUrls]);
+                          setProfileData((prev) => ({
+                            ...prev,
+                            additionalImages: [...(prev?.additionalImages || []), ...uploadedUrls],
+                          }));
+                        } catch (error) {
+                          console.error("Error uploading additional images:", error);
+                          alert("Failed to upload additional images. Please try again.");
+                        }
                       }
                     }}
                     className="hidden"
@@ -351,7 +348,7 @@ const ProfileDetails: React.FC = () => {
 
         {/* Physical Attributes */}
         <fieldset className="border p-4 rounded-lg">
-        <legend className="text-base sm:text-lg font-bold text-purple-700">Physical Attributes</legend>
+          <legend className="text-base sm:text-lg font-bold text-purple-700">Physical Attributes</legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField control={form.control} name="height" label="Height" type="text" placeholder={""} />
             <InputField control={form.control} name="weight" label="Weight (Optional)" type="text" placeholder={""} />
@@ -380,7 +377,7 @@ const ProfileDetails: React.FC = () => {
 
         {/* Family and Preferences */}
         <fieldset className="border p-4 rounded-lg">
-        <legend className="text-base sm:text-lg font-bold text-purple-700">Family and Preferences</legend>
+          <legend className="text-base sm:text-lg font-bold text-purple-700">Family and Preferences</legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SelectField
               control={form.control}
@@ -441,7 +438,7 @@ const ProfileDetails: React.FC = () => {
 
         {/* Horoscope and Additional Information */}
         <fieldset className="border p-4 rounded-lg">
-        <legend className="text-base sm:text-lg font-bold text-purple-700">Horoscope and Additional Information</legend>
+          <legend className="text-base sm:text-lg font-bold text-purple-700">Horoscope and Additional Information</legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField control={form.control} name="horoscope" label="Horoscope (Optional)" type="text" placeholder={""} />
             <SelectField

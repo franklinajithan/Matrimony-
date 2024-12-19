@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../services/firebase";
+import { useUser } from "../context/UserContext";
 
 const UserDetailPage: React.FC = () => {
   const { id } = useParams();
+  const { user } = useUser();
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [friendshipStatus, setFriendshipStatus] = useState<string>("none"); // "none", "sent", "friends"
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -15,7 +18,7 @@ const UserDetailPage: React.FC = () => {
       try {
         const userDocRef = doc(db, "profiles", id as string);
         const docSnapshot = await getDoc(userDocRef);
-
+        debugger;
         if (docSnapshot.exists()) {
           setUserData(docSnapshot.data());
         } else {
@@ -29,8 +32,49 @@ const UserDetailPage: React.FC = () => {
       }
     };
 
+    const checkFriendshipStatus = async () => {
+      debugger;
+      let test = userData;
+      if (user?.uid && id) {
+        try {
+          debugger;
+          const q = query(collection(db, "friendRequests"), where("fromUser", "in", [user.uid, id]), where("toUser", "in", [user.uid, id]));
+
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            const request = querySnapshot.docs[0].data();
+            if (request.status === "accepted") {
+              setFriendshipStatus("friends");
+            } else if (request.status === "pending") {
+              setFriendshipStatus("sent");
+            }
+          }
+        } catch (err) {
+          console.error("Error checking friendship status:", err);
+        }
+      }
+    };
+
     fetchUserData();
-  }, [id]);
+    checkFriendshipStatus();
+  }, [user?.uid, id]);
+
+  const sendFriendRequest = async () => {
+    if (!user || !id) return;
+    debugger;
+    try {
+      await addDoc(collection(db, "friendRequests"), {
+        fromUser: user.uid,
+        toUser: id,
+        status: "pending",
+      });
+      setFriendshipStatus("sent");
+      alert("Friend request sent successfully!");
+    } catch (err) {
+      console.error("Error sending friend request:", err);
+      alert("Failed to send friend request. Try again later.");
+    }
+  };
 
   if (loading) {
     return (
@@ -47,7 +91,6 @@ const UserDetailPage: React.FC = () => {
       </div>
     );
   }
-
   const renderSection = (title: string, data: any) => (
     <div className="mb-6">
       <h3 className="text-lg font-bold text-gray-800 mb-2">{title}</h3>
@@ -60,7 +103,6 @@ const UserDetailPage: React.FC = () => {
       </div>
     </div>
   );
-// Test
   return (
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -76,6 +118,24 @@ const UserDetailPage: React.FC = () => {
         <div className="p-6 mt-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-4">{userData?.fullName || "Name Not Provided"}</h1>
           <p className="text-gray-600 mb-6">{userData?.occupation || "Occupation Not Provided"}</p>
+
+          <>
+            {friendshipStatus === "none" && (
+              <button onClick={sendFriendRequest} className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white">
+                Send Friend Request
+              </button>
+            )}
+            {friendshipStatus === "sent" && (
+              <button disabled className="px-4 py-2 rounded bg-gray-400 text-white cursor-not-allowed">
+                Request Sent
+              </button>
+            )}
+            {friendshipStatus === "friends" && (
+              <button disabled className="px-4 py-2 rounded bg-green-500 text-white cursor-not-allowed">
+                Friends
+              </button>
+            )}
+          </>
 
           {/* Basic Information */}
           {renderSection("Personal Information", {

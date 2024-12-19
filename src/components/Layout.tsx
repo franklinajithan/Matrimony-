@@ -19,12 +19,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       )}
 
       {/* Main Content - Centered */}
-      <main className="flex-1 items-center justify-center w-full max-w-full overflow-x-hidden">{children}</main>
+      <main className="flex-1 items-center  justify-center w-full max-w-full overflow-x-hidden">{children}</main>
+    
 
       {/* Footer */}
       <footer className="bg-gray-800 text-gray-200 w-full max-w-full">
-  <Footer />
-</footer>
+        <Footer />
+      </footer>
     </div>
   );
 };
