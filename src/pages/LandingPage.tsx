@@ -93,7 +93,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between text-center md:text-left space-y-8 md:space-y-0">
           {/* Text Content */}
           <div className="md:w-2/3">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-4 sm:mb-6">Welcome to Matrimony</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-4 sm:mb-6 mt-10">Welcome to Matrimony</h1>
             <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8">Find your perfect match with our advanced matchmaking platform.</p>
             <Link to="/signup">
               <button className="bg-white text-pink-600 font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-gray-100 transition">Get Started</button>
