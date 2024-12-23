@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaBell, FaUser, FaEnvelope, FaSearch, FaBars, FaTimes, FaHeart } from "react-icons/fa";
-import { auth } from "../services/firebase";
+import { auth, db } from "../services/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,14 +11,29 @@ const Navbar: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0); // Unread messages count
 
   // Track Authentication State
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setIsUserLoggedIn(!!currentUser);
       setUser(currentUser);
+
+      if (currentUser) {
+        const messagesRef = collection(db, "messages");
+        const q = query(messagesRef, where("toUserId", "==", currentUser.uid), where("isRead", "==", false));
+
+        // Real-time listener for unread messages
+        const unsubscribeMessages = onSnapshot(q, (snapshot) => {
+          setUnreadCount(snapshot.docs.length); // Update unread count
+        });
+
+        return () => unsubscribeMessages();
+      }
     });
-    return () => unsubscribe();
+
+    return () => unsubscribeAuth();
   }, []);
 
   const handleLogout = async () => {
@@ -37,9 +53,9 @@ const Navbar: React.FC = () => {
         {/* Logo */}
         <div className="text-2xl font-bold text-white">
           <Link to="/dashboard">
-          <span className="flex items-center text-3xl font-bold text-white">
-                CUPID <FaHeart className="mx-2 text-red-500 text-3xl" /> KNOTS
-              </span>
+            <span className="flex items-center text-3xl font-bold text-white">
+              CUPID <FaHeart className="mx-2 text-red-500 text-3xl" /> KNOTS
+            </span>
           </Link>
         </div>
 
@@ -68,7 +84,7 @@ const Navbar: React.FC = () => {
           </Link>
           <Link to="/chatPage" className="relative hover:text-gray-300 text-white">
             <FaEnvelope size={20} />
-            <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1">5</span>
+            <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1"> {unreadCount > 0 && `${unreadCount}`}</span>
           </Link>
           <Link to="/notifications" className="relative hover:text-gray-300 text-white">
             <FaBell size={20} />

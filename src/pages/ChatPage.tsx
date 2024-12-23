@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { collection, query, where, onSnapshot, addDoc, orderBy, serverTimestamp, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, addDoc, orderBy, serverTimestamp, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../services/firebase";
 import { FaTrash } from "react-icons/fa";
 import { onAuthStateChanged } from "firebase/auth";
@@ -90,6 +90,30 @@ const Chat: React.FC = () => {
     }
   };
 
+  const markMessagesAsRead = async (userId: string) => {
+    if (!currentUserId) return;
+
+    try {
+      const messagesRef = collection(db, "messages");
+      const q = query(
+        messagesRef,
+        where("fromUserId", "==", userId),
+        where("toUserId", "==", currentUserId),
+        where("isRead", "==", false) // Only unread messages
+      );
+
+      const snapshot = await getDocs(q);
+
+      // Update the `isRead` field for each unread message
+      const updatePromises = snapshot.docs.map((docItem) => updateDoc(doc(db, "messages", docItem.id), { isRead: true }));
+
+      await Promise.all(updatePromises);
+      console.log("Messages marked as read");
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+    }
+  };
+
   // Real-time listener for messages
   useEffect(() => {
     if (!selectedUser || !currentUserId) return;
@@ -104,17 +128,11 @@ const Chat: React.FC = () => {
         ...(doc.data() as Message),
       }));
 
-      // Check for new messages and trigger notifications
-      const latestMessage = snapshot.docChanges().find((change) => change.type === "added");
-      if (latestMessage) {
-        const newMessage = latestMessage.doc.data() as Message;
-        if (newMessage.fromUserId !== currentUserId) {
-          triggerNotification(newMessage.text);
-        }
-      }
-
       setMessages(messagesList);
-      scrollToBottom(); // Auto-scroll to bottom
+      scrollToBottom();
+
+      // Mark messages as read for the selected user
+      markMessagesAsRead(selectedUser.id);
     });
 
     return () => unsubscribe();
@@ -130,6 +148,7 @@ const Chat: React.FC = () => {
       fromUserId: currentUserId,
       toUserId: selectedUser.id,
       timestamp: serverTimestamp(),
+      isRead: false, // New messages should default to unread
     });
 
     setMessageText("");
@@ -169,115 +188,82 @@ const Chat: React.FC = () => {
   };
 
   return (
-<main className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-200 flex flex-col p-2 sm:p-4">
-  <div className="flex flex-col md:flex-row w-full bg-white">
-    {/* Sidebar for users */}
-    <div className="w-full md:w-1/3 bg-gray-50 border-b md:border-r md:border-b-0 border-gray-200 overflow-y-auto">
-      <h2 className="text-lg sm:text-xl font-semibold p-4 text-gray-700 border-b">Chats</h2>
-      {users.map((user: any) => (
-        <div
-          key={user.id}
-          className={`p-4 flex items-center justify-between cursor-pointer transition-colors duration-200 ${
-            selectedUser?.id === user.id ? "bg-blue-100" : "hover:bg-gray-100"
-          }`}
-          onClick={() => setSelectedUser(user)}
-        >
-          {/* User Info */}
-          <div className="flex items-center">
-            <img
-              src={user.profilePicture}
-              alt={user.fullName}
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-300 mr-4"
-            />
-            <span className="text-sm sm:text-base text-gray-700 font-medium">{user.fullName}</span>
-          </div>
-
-          {/* Delete Button */}
-          <div
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent selecting the user when deleting
-              deleteChatHistory(user.id);
-            }}
-            className="text-gray-500 hover:text-red-500 transition-colors duration-200"
-            title="Delete Chat History"
-          >
-            <FaTrash size={16} />
-          </div>
-        </div>
-      ))}
-    </div>
-
-    {/* Chat window */}
-    <div className="w-full md:w-2/3 flex flex-col">
-      {selectedUser ? (
-        <>
-          {/* Chat Header */}
-          <div className="p-4 bg-blue-500 text-white flex items-center border-b">
-            <img
-              src={selectedUser.profilePicture}
-              alt={selectedUser.fullName}
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-4 border border-white"
-            />
-            <span className="text-sm sm:text-lg font-semibold">{selectedUser.fullName}</span>
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-4">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${
-                  msg.fromUserId === currentUserId ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`p-3 rounded-xl shadow-md max-w-xs ${
-                    msg.fromUserId === currentUserId
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-800"
-                  }`}
-                >
-                  {msg.text}
-                </div>
+    <main className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-200 flex flex-col p-2 sm:p-4">
+      <div className="flex flex-col md:flex-row w-full bg-white">
+        {/* Sidebar for users */}
+        <div className="w-full md:w-1/3 bg-gray-50 border-b md:border-r md:border-b-0 border-gray-200 overflow-y-auto">
+          <h2 className="text-lg sm:text-xl font-semibold p-4 text-gray-700 border-b">Chats</h2>
+          {users.map((user: any) => (
+            <div key={user.id} className={`p-4 flex items-center justify-between cursor-pointer transition-colors duration-200 ${selectedUser?.id === user.id ? "bg-blue-100" : "hover:bg-gray-100"}`} onClick={() => setSelectedUser(user)}>
+              {/* User Info */}
+              <div className="flex items-center">
+                <img src={user.profilePicture} alt={user.fullName} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-300 mr-4" />
+                <span className="text-sm sm:text-base text-gray-700 font-medium">{user.fullName}</span>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
 
-          {/* Input */}
-          <div className="p-4 border-t bg-white flex items-center">
-            <input
-              type="text"
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-              placeholder="Type your message..."
-              className="flex-1 p-2 sm:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm sm:text-base"
-            />
-            <button
-              onClick={sendMessage}
-              className="ml-3 bg-blue-500 text-white px-3 py-2 sm:px-5 sm:py-2 rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-200 text-sm sm:text-base"
-            >
-              Send
-            </button>
-          </div>
-        </>
-      ) : (
-        <div className="flex items-center justify-center h-full bg-gray-50">
-          <span className="text-gray-500 text-sm sm:text-lg">
-            Select a user to chat with
-          </span>
+              {/* Delete Button */}
+              <div
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent selecting the user when deleting
+                  deleteChatHistory(user.id);
+                }}
+                className="text-gray-500 hover:text-red-500 transition-colors duration-200"
+                title="Delete Chat History"
+              >
+                <FaTrash size={16} />
+              </div>
+            </div>
+          ))}
         </div>
-      )}
-    </div>
-  </div>
-</main>
 
+        {/* Chat window */}
+        <div className="w-full md:w-2/3 flex flex-col">
+          {selectedUser ? (
+            <>
+              {/* Chat Header */}
+              <div className="p-4 bg-blue-500 text-white flex items-center border-b">
+                <img src={selectedUser.profilePicture} alt={selectedUser.fullName} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-4 border border-white" />
+                <span className="text-sm sm:text-lg font-semibold">{selectedUser.fullName}</span>
+              </div>
+
+              {/* Messages */}
+              <div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-4">
+                {messages.map((msg) => (
+                  <div key={msg.id} className={`flex ${msg.fromUserId === currentUserId ? "justify-end" : "justify-start"}`}>
+                    <div className={`p-3 rounded-xl shadow-md max-w-xs ${msg.fromUserId === currentUserId ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}>{msg.text}</div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Input */}
+              <div className="p-4 border-t bg-white flex items-center">
+                <input
+                  type="text"
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  placeholder="Type your message..."
+                  className="flex-1 p-2 sm:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm sm:text-base"
+                />
+                <button onClick={sendMessage} className="ml-3 bg-blue-500 text-white px-3 py-2 sm:px-5 sm:py-2 rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-200 text-sm sm:text-base">
+                  Send
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gray-50">
+              <span className="text-gray-500 text-sm sm:text-lg">Select a user to chat with</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
   );
 };
 
